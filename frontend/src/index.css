@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-korean bg-hanji text-ink;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-white shadow-md border border-stone-200 p-5;
+  }
+  .btn-primary {
+    @apply rounded-full bg-jade text-white px-6 py-2 text-sm font-medium
+           hover:bg-jade/80 active:scale-95 transition-all;
+  }
+  .btn-secondary {
+    @apply rounded-full border border-jade text-jade px-6 py-2 text-sm font-medium
+           hover:bg-jade/10 active:scale-95 transition-all;
+  }
+  .badge {
+    @apply inline-block rounded-full bg-stone-100 text-stone-600 text-xs px-2 py-0.5;
+  }
+  .badge-license {
+    @apply inline-block rounded-full text-xs px-2 py-0.5 font-medium;
+  }
+}

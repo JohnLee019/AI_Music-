@@ -1,0 +1,24 @@
+# Python
+.env
+.env.example
+__pycache__/
+*.pyc
+*.pyo
+music_match/
+*.egg-info/
+.venv/
+venv/
+
+# Data (large files)
+data/audio/
+data/raw/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
