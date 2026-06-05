@@ -35,6 +35,11 @@ def load_tracks() -> list[dict[str, Any]]:
 
 
 def load_reasoning() -> dict[str, str]:
+    """사전 생성된 근거 텍스트 로드. 파일이 없거나 손상돼도 데모는 멈추지 않는다
+    (main.py 가 메타데이터 템플릿 근거로 폴백한다 — AGENTS.md §2)."""
     path = os.path.join(DATA_DIR, "reasoning.json")
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}

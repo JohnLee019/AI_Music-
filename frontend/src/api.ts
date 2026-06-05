@@ -36,10 +36,14 @@ export interface Track {
   license_type: string;
   license_note: string;
   is_derivative_allowed: boolean;
+  commercial_ok?: boolean;
+  derivative_ok?: boolean;
   score: number;
   score_detail: ScoreDetail;
   reasoning: string;
 }
+
+export type UseCase = "listen" | "creator" | "place_bgm";
 
 export interface MatchResult {
   place: Place;
@@ -52,11 +56,11 @@ export async function fetchPlaces(): Promise<Place[]> {
   return res.json();
 }
 
-export async function fetchMatch(place_id: string): Promise<MatchResult> {
+export async function fetchMatch(place_id: string, use_case: UseCase = "listen"): Promise<MatchResult> {
   const res = await fetch(`${BASE}/match`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ place_id }),
+    body: JSON.stringify({ place_id, use_case }),
   });
   if (!res.ok) throw new Error("매칭 요청 실패");
   return res.json();

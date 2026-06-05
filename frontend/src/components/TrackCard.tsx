@@ -23,8 +23,8 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
   const handlePlayClick = () => {
     const el = audioRef.current;
     if (!el) return;
-    // autoplay 잠금 해제: 클릭 즉시 동기적으로 play → pause
-    el.play().then(() => el.pause()).catch(() => {});
+    // 재생 버튼 클릭은 그 자체가 사용자 제스처 → 별도 unlock 없이 바로 토글.
+    // (play→pause 후 즉시 play()를 또 부르면 deferred pause가 재생을 죽이는 경쟁 상태 발생)
     onPlay(el);
   };
 
@@ -56,8 +56,14 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
               <span className="badge">{track.sub_genre}</span>
             )}
             <span className={`badge-license ${licenseStyle}`}>{track.license_type}</span>
-            {track.is_derivative_allowed && (
-              <span className="badge-license bg-emerald-50 text-emerald-700">편곡 허용</span>
+            {track.commercial_ok === true && (
+              <span className="badge-license bg-emerald-50 text-emerald-700">수익화 가능</span>
+            )}
+            {track.commercial_ok === false && (
+              <span className="badge-license bg-red-50 text-red-500">비상업</span>
+            )}
+            {track.derivative_ok === true && (
+              <span className="badge-license bg-sky-50 text-sky-700">편곡 허용</span>
             )}
           </div>
         </div>

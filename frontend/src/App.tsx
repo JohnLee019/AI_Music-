@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { MatchResult, Place } from "./api";
 import { fetchMatch, fetchPlaces } from "./api";
 import GenerateBGM from "./components/GenerateBGM";
@@ -13,11 +13,50 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<HTMLAudioElement | null>(null);
 
+  // ── 트랙 필터 상태 ─────────────────────────────────
+  const [genreFilter, setGenreFilter] = useState<string | null>(null);
+  const [commercialOnly, setCommercialOnly] = useState(false);
+
   useEffect(() => {
     fetchPlaces()
       .then(setPlaces)
       .catch(() => setError("백엔드에 연결할 수 없습니다. 서버를 먼저 실행해 주세요."));
   }, []);
+
+  // 장소 바뀌면 트랙 필터 초기화
+  useEffect(() => {
+    setGenreFilter(null);
+    setCommercialOnly(false);
+  }, [result]);
+
+  // 결과 트랙에서 장르 목록 추출 (중복 제거, 출현 순서 유지)
+  const availableGenres = useMemo(() => {
+    if (!result) return [];
+    const seen = new Set<string>();
+    const genres: string[] = [];
+    for (const t of result.tracks) {
+      if (!seen.has(t.genre)) { seen.add(t.genre); genres.push(t.genre); }
+    }
+    return genres;
+  }, [result]);
+
+  // 필터 적용
+  const filteredTracks = useMemo(() => {
+    if (!result) return [];
+    return result.tracks.filter((t) => {
+      if (genreFilter && t.genre !== genreFilter) return false;
+      if (commercialOnly && t.commercial_ok !== true) return false;
+      return true;
+    });
+  }, [result, genreFilter, commercialOnly]);
+
+  const stopCurrentAudio = () => {
+    if (playingAudio) {
+      playingAudio.pause();
+      playingAudio.currentTime = 0;
+      setPlayingAudio(null);
+    }
+  };
 
   const handleSelect = async (place: Place) => {
     if (loading) return;
@@ -25,7 +64,6 @@ export default function App() {
     setResult(null);
     setError(null);
     setLoading(true);
-    // 현재 재생 중인 오디오 정지
     stopCurrentAudio();
     try {
       const data = await fetchMatch(place.id);
@@ -34,14 +72,6 @@ export default function App() {
       setError("매칭 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const stopCurrentAudio = () => {
-    if (playingAudio) {
-      playingAudio.pause();
-      playingAudio.currentTime = 0;
-      setPlayingAudio(null);
     }
   };
 
@@ -54,10 +84,13 @@ export default function App() {
       audioEl.pause();
       setPlayingAudio(null);
     } else {
+      audioEl.onended = () => setPlayingAudio(null);
       audioEl.play().catch(() => {});
       setPlayingAudio(audioEl);
     }
   };
+
+  const hasActiveFilter = genreFilter !== null || commercialOnly;
 
   return (
     <div className="min-h-screen bg-hanji">
@@ -129,28 +162,93 @@ export default function App() {
               </div>
             </div>
 
-            {/* 매칭 헤더 */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase">
-                AI 매칭 결과
-              </h2>
-              <span className="text-xs text-stone-400">
-                {result.tracks.length}곡 중 상위 선곡
-              </span>
+            {/* 매칭 헤더 + 필터 */}
+            <div className="mb-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase">
+                  AI 매칭 결과
+                </h2>
+                <span className="text-xs text-stone-400">
+                  {filteredTracks.length} / {result.tracks.length}곡
+                </span>
+              </div>
+
+              {/* 장르 필터 칩 */}
+              {availableGenres.length > 1 && (
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setGenreFilter(null)}
+                    className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                      !genreFilter
+                        ? "bg-jade text-white border-jade"
+                        : "border-stone-200 text-stone-500 hover:border-jade hover:text-jade"
+                    }`}
+                  >
+                    전체 장르
+                  </button>
+                  {availableGenres.map((g) => (
+                    <button
+                      key={g}
+                      onClick={() => setGenreFilter(genreFilter === g ? null : g)}
+                      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                        genreFilter === g
+                          ? "bg-jade text-white border-jade"
+                          : "border-stone-200 text-stone-500 hover:border-jade hover:text-jade"
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* 라이선스 필터 */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <label className="flex items-center gap-2 text-xs text-stone-500 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={commercialOnly}
+                    onChange={(e) => setCommercialOnly(e.target.checked)}
+                    className="accent-jade w-3.5 h-3.5"
+                  />
+                  수익화 가능 음원만 보기
+                </label>
+                {hasActiveFilter && (
+                  <button
+                    className="text-xs text-stone-400 underline underline-offset-2 hover:text-stone-600"
+                    onClick={() => { setGenreFilter(null); setCommercialOnly(false); }}
+                  >
+                    필터 초기화
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 트랙 카드 목록 */}
-            <div className="space-y-4">
-              {result.tracks.map((track, i) => (
-                <TrackCard
-                  key={track.id}
-                  track={track}
-                  rank={i + 1}
-                  isPlaying={playingAudio?.src.endsWith(track.audio_path) ?? false}
-                  onPlay={handlePlay}
-                />
-              ))}
-            </div>
+            {filteredTracks.length > 0 ? (
+              <div className="space-y-4">
+                {filteredTracks.map((track, i) => (
+                  <TrackCard
+                    key={track.id}
+                    track={track}
+                    rank={i + 1}
+                    isPlaying={playingAudio?.src.endsWith(track.audio_path) ?? false}
+                    onPlay={handlePlay}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-10 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-200">
+                <div className="text-2xl mb-2">🎵</div>
+                <p>현재 필터 조건에 맞는 곡이 없습니다.</p>
+                <button
+                  className="mt-2 text-xs text-jade underline underline-offset-2"
+                  onClick={() => { setGenreFilter(null); setCommercialOnly(false); }}
+                >
+                  필터 초기화
+                </button>
+              </div>
+            )}
 
             {/* BGM 생성 */}
             <div className="mt-6">

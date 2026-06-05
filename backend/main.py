@@ -15,6 +15,7 @@ load_dotenv()
 
 from embeddings import load_places, load_reasoning, load_tracks  # noqa: E402
 from generation import generate_bgm  # noqa: E402
+from licensing import annotate_track, filter_by_use_case  # noqa: E402
 from matching import match  # noqa: E402
 
 # ── 앱 시작 시 데이터 로드 ────────────────────────────
@@ -31,6 +32,9 @@ async def lifespan(app: FastAPI):
     _reasoning = load_reasoning()
     yield
 
+
+# 매칭 결과로 반환할 상위 트랙 개수 (AGENTS.md §9: 매직 넘버 금지).
+TOP_N_TRACKS = 5
 
 app = FastAPI(title="GugakPlace API", version="0.1.0", lifespan=lifespan)
 
@@ -52,6 +56,7 @@ app.mount("/audio", StaticFiles(directory=_audio_dir), name="audio")
 # ── 스키마 ───────────────────────────────────────────
 class MatchRequest(BaseModel):
     place_id: str
+    use_case: str = "listen"  # "listen" | "creator" | "place_bgm"
 
 
 class GenerateRequest(BaseModel):
@@ -99,14 +104,18 @@ def post_match(body: MatchRequest):
     """장소 ID → 점수순 트랙 리스트 + 매칭 근거."""
     place = _get_place(body.place_id)
     ranked = match(place, _tracks)
-    top5 = ranked[:5]
 
-    for track in top5:
+    # 라이선스 파생값 주입 후 use_case 필터 적용
+    annotated = [annotate_track(t) for t in ranked]
+    filtered = filter_by_use_case(annotated, body.use_case)
+    top_tracks = filtered[:TOP_N_TRACKS]
+
+    for track in top_tracks:
         track["reasoning"] = _build_reasoning(body.place_id, track["id"])
 
     return {
         "place": {k: v for k, v in place.items() if k != "embedding"},
-        "tracks": top5,
+        "tracks": top_tracks,
     }
 
 
@@ -114,9 +123,10 @@ def post_match(body: MatchRequest):
 async def post_generate(body: GenerateRequest):
     """장소에 맞는 BGM 생성 (보조 기능, 폴백 포함)."""
     place = _get_place(body.place_id)
-    # 매칭 상위 트랙을 프롬프트 기반으로 사용
     ranked = match(place, _tracks)
-    top_track = ranked[0] if ranked else {}
+    # 2차 가공(생성)은 is_derivative_allowed=True 음원만 참조 (AGENTS.md §5.5)
+    derivable = [t for t in ranked if t.get("is_derivative_allowed", True)]
+    top_track = derivable[0] if derivable else (ranked[0] if ranked else {})
     audio_url = await generate_bgm(place, top_track)
     return {"audio_url": audio_url, "prompt_used": True}
 

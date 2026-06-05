@@ -1,7 +1,7 @@
 # Python
 .env
-.env.example
-README.md
+Prd.md
+.claude
 __pycache__/
 *.pyc
 *.pyo

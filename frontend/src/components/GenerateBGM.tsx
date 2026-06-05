@@ -12,7 +12,8 @@ export default function GenerateBGM({ placeId }: Props) {
 
   const handleGenerate = async () => {
     const el = audioRef.current;
-    // autoplay 잠금 해제
+    // autoplay 잠금 해제: 클릭 즉시(동기적으로) 권한 확보 → fetch 후 src 교체해 play()
+    // (audio 엘리먼트를 항상 마운트해 두어야 클릭 시점에 ref가 살아있다)
     if (el) el.play().then(() => el.pause()).catch(() => {});
 
     setStatus("loading");
@@ -46,12 +47,11 @@ export default function GenerateBGM({ placeId }: Props) {
           {status === "loading" ? "생성 중…" : "생성하기"}
         </button>
       </div>
-      {status === "done" && audioUrl && (
-        <div className="mt-3">
-          <audio ref={audioRef} controls className="w-full h-8" />
-          <p className="text-xs text-stone-400 mt-1">생성된 BGM (라이선스 클린 모델 사용)</p>
-        </div>
-      )}
+      {/* audio 엘리먼트는 항상 마운트 — 클릭 시점에 ref가 살아있어야 autoplay unlock이 동작한다 */}
+      <div className={status === "done" && audioUrl ? "mt-3" : "hidden"}>
+        <audio ref={audioRef} controls className="w-full h-8" />
+        <p className="text-xs text-stone-400 mt-1">생성된 BGM (라이선스 클린 모델 사용)</p>
+      </div>
       {status === "error" && (
         <p className="mt-2 text-xs text-red-500">생성 실패. 인터넷 연결이나 API 키를 확인하세요.</p>
       )}
