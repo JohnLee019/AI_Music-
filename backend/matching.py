@@ -47,11 +47,26 @@ def _tag_score(cultural_keywords: list[str], track_instruments: list[str], track
     return len(overlap) / max(len(kw_set), len(track_tags))
 
 
-def match(place: dict[str, Any], tracks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def match(
+    place: dict[str, Any],
+    tracks: list[dict[str, Any]],
+    *,
+    weights: tuple[float, float, float, float] | None = None,
+) -> list[dict[str, Any]]:
     """
     place 에 대해 tracks를 점수순 정렬하여 반환한다.
     각 트랙에 score, score_detail 필드를 추가한다.
+
+    weights: (지역, 유형, 의미, 태그) 가중치 오버라이드. 자유 텍스트 검색처럼
+    지역·유형 신호가 없을 때 (0, 0, 0.8, 0.2) 등으로 재정규화해 점수 스케일을 맞춘다.
+    합이 1이 아니면 정규화한다.
     """
+    w_region, w_type, w_semantic, w_tag = weights or (W_REGION, W_TYPE, W_SEMANTIC, W_TAG)
+    w_sum = w_region + w_type + w_semantic + w_tag or 1.0
+    w_region, w_type, w_semantic, w_tag = (
+        w_region / w_sum, w_type / w_sum, w_semantic / w_sum, w_tag / w_sum,
+    )
+
     results = []
     place_region = place.get("music_region", "")
     place_embedding = place.get("embedding", [])
@@ -67,7 +82,7 @@ def match(place: dict[str, Any], tracks: list[dict[str, Any]]) -> list[dict[str,
             track.get("instruments", []),
             track.get("mood", []),
         )
-        final = W_REGION * r + W_TYPE * t + W_SEMANTIC * s_norm + W_TAG * g
+        final = w_region * r + w_type * t + w_semantic * s_norm + w_tag * g
 
         entry = dict(track)
         entry.pop("embedding", None)  # 응답에서 임베딩 벡터 제거

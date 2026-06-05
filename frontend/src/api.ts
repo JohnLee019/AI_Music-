@@ -8,10 +8,11 @@ export interface Place {
   region: string;
   music_region: string;
   type: string;
-  lat: number;
-  lng: number;
+  lat?: number;   // 자유 텍스트 검색 결과(합성 place)에는 없음
+  lng?: number;
   description: string;
   cultural_keywords: string[];
+  similarity?: number;  // 추천 결과에만 존재 (검색어와의 의미 유사도 0~1)
 }
 
 export interface ScoreDetail {
@@ -38,6 +39,7 @@ export interface Track {
   is_derivative_allowed: boolean;
   commercial_ok?: boolean;
   derivative_ok?: boolean;
+  attribution_text?: string;
   score: number;
   score_detail: ScoreDetail;
   reasoning: string;
@@ -56,11 +58,29 @@ export async function fetchPlaces(): Promise<Place[]> {
   return res.json();
 }
 
+/** 검색어와 의미가 가까운 보유 장소 추천 (없는 장소 검색 시 연관 장소 제안). */
+export async function fetchPlaceSuggestions(q: string, k = 3): Promise<Place[]> {
+  const res = await fetch(`${BASE}/places/suggest?q=${encodeURIComponent(q)}&k=${k}`);
+  if (!res.ok) throw new Error("연관 장소 조회 실패");
+  return res.json();
+}
+
 export async function fetchMatch(place_id: string, use_case: UseCase = "listen"): Promise<MatchResult> {
   const res = await fetch(`${BASE}/match`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ place_id, use_case }),
+  });
+  if (!res.ok) throw new Error("매칭 요청 실패");
+  return res.json();
+}
+
+/** 자유 시놉시스·무드 텍스트로 매칭 (런타임 임베딩 경로). */
+export async function fetchMatchByText(query_text: string, use_case: UseCase = "listen"): Promise<MatchResult> {
+  const res = await fetch(`${BASE}/match`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query_text, use_case }),
   });
   if (!res.ok) throw new Error("매칭 요청 실패");
   return res.json();

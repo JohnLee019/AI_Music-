@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MatchResult, Place } from "./api";
-import { fetchMatch, fetchPlaces } from "./api";
+import { fetchMatch, fetchMatchByText, fetchPlaces } from "./api";
 import GenerateBGM from "./components/GenerateBGM";
 import PlaceSelector from "./components/PlaceSelector";
+import SynopsisSearch from "./components/SynopsisSearch";
 import TrackCard from "./components/TrackCard";
 
 export default function App() {
@@ -75,6 +76,23 @@ export default function App() {
     }
   };
 
+  const handleSearch = async (text: string) => {
+    if (loading) return;
+    setSelected(null);
+    setResult(null);
+    setError(null);
+    setLoading(true);
+    stopCurrentAudio();
+    try {
+      const data = await fetchMatchByText(text);
+      setResult(data);
+    } catch {
+      setError("매칭 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePlay = (audioEl: HTMLAudioElement) => {
     if (playingAudio && playingAudio !== audioEl) {
       playingAudio.pause();
@@ -113,6 +131,16 @@ export default function App() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        {/* 자유 시놉시스·무드 입력 (크리에이터 핵심 경로) */}
+        <SynopsisSearch onSearch={handleSearch} loading={loading} />
+
+        {/* 구분선 */}
+        <div className="flex items-center gap-3 text-xs text-stone-400">
+          <div className="flex-1 h-px bg-stone-200" />
+          또는 장소로 찾기
+          <div className="flex-1 h-px bg-stone-200" />
+        </div>
+
         {/* 장소 선택 */}
         <PlaceSelector
           places={places}
@@ -146,7 +174,9 @@ export default function App() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-xl font-bold">{result.place.name}</h2>
                     <span className="badge">{result.place.type}</span>
-                    <span className="badge">{result.place.music_region} 권역</span>
+                    {result.place.music_region !== "-" && (
+                      <span className="badge">{result.place.music_region} 권역</span>
+                    )}
                   </div>
                   <p className="text-sm text-stone-600 mt-2 leading-relaxed">
                     {result.place.description}

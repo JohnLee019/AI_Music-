@@ -1,33 +1,49 @@
 """
 오프라인 데이터 가공 스크립트.
-장소·트랙 메타데이터를 정의하고, TF-IDF 기반 임베딩을 사전 계산해 JSON으로 저장한다.
-실 서비스용으로는 sentence-transformers 모델로 교체 권장.
+
+장소(PLACES_RAW)와 국악방송 전국8도민요 MR 음원(CSV)을 정의/파싱하고,
+임베딩을 사전 계산해 dict 포맷 JSON으로 저장한다.
+
+임베딩 백엔드는 embeddings.embed_corpus 가 결정한다:
+  - HF_API_KEY 있으면 ko-sroberta 768차원
+  - 없으면 키워드 매칭 폴백 (34차원)
+
+새 장소 추가: PLACES_RAW 에 dict 하나 추가 후 재실행하면 자동 임베딩.
+음원 파일 다운로드: 이 스크립트는 메타+임베딩만 만든다. 실제 wav는
+prep/download_audio.py 가 tracks.json 의 audio_source_url 로부터 받는다.
 """
+from __future__ import annotations
+
+import csv
+import io
 import json
-import math
 import os
+import re
+import sys
 
-# 32차원 문화 키워드 공간 (차원 인덱스 고정)
-KEYWORD_DIMS = [
-    "왕실", "궁중", "의례", "장엄함", "정제됨",          # 0-4 궁궐
-    "민속", "마을", "농촌", "공동체", "활기",             # 5-9 민속
-    "전통", "역사", "문화유산", "격식", "고요함",         # 10-14 공통
-    "정악", "궁중음악", "관현악",                         # 15-17 정악
-    "민요", "농악", "사물놀이", "풍물",                   # 18-21 민속악
-    "판소리", "산조", "가곡", "독주",                     # 22-25 성악/독주
-    "경기", "영남", "호남", "충청",                       # 26-29 권역
-    "대금", "가야금", "장구", "피리",                     # 30-33 악기
-]
+# embeddings 모듈을 import 하기 위해 backend 디렉터리를 경로에 추가
+_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _BACKEND_DIR not in sys.path:
+    sys.path.insert(0, _BACKEND_DIR)
 
-def make_embedding(scores: dict[str, float]) -> list[float]:
-    """키워드 점수 딕셔너리 → L2 정규화 벡터."""
-    vec = [scores.get(k, 0.0) for k in KEYWORD_DIMS]
-    norm = math.sqrt(sum(x * x for x in vec)) or 1.0
-    return [round(x / norm, 6) for x in vec]
+from dotenv import load_dotenv  # noqa: E402
+
+from embeddings import (  # noqa: E402
+    EMBED_TEXT_RECIPE,
+    embed_corpus,
+    place_recipe,
+    track_recipe,
+)
+
+load_dotenv()
+
+_ROOT = os.path.join(_BACKEND_DIR, "..")
+_DATA_DIR = os.path.join(_ROOT, "data")
+_CSV_NAME = "재단법인국악방송_전국8도민요MR_20240301.csv"
 
 
 # ─────────────────────────────────────────────
-# 장소 데이터
+# 장소 데이터 (히어로 4곳). 새 장소는 여기에 dict 추가만 하면 된다.
 # ─────────────────────────────────────────────
 PLACES_RAW = [
     {
@@ -39,12 +55,7 @@ PLACES_RAW = [
         "lat": 37.5796,
         "lng": 126.9770,
         "description": "조선 왕조의 정궁으로 왕실 의례와 궁중 문화의 중심지. 장엄하고 정제된 왕실 문화를 상징한다.",
-        "cultural_keywords": ["왕실", "궁중", "의례", "정제됨", "장엄함", "정악", "궁중음악"],
-        "embedding_scores": {
-            "왕실": 1.0, "궁중": 1.0, "의례": 0.9, "장엄함": 0.9, "정제됨": 0.8,
-            "전통": 0.7, "역사": 0.8, "문화유산": 0.7, "격식": 0.8, "고요함": 0.5,
-            "정악": 0.8, "궁중음악": 1.0, "관현악": 0.6, "경기": 0.9,
-        },
+        "cultural_keywords": ["왕실", "궁중", "의례", "정제", "장엄", "정악", "궁중음악"],
     },
     {
         "id": "hahoe",
@@ -56,11 +67,6 @@ PLACES_RAW = [
         "lng": 128.5189,
         "description": "유네스코 세계문화유산으로 지정된 조선시대 씨족마을. 하회별신굿탈놀이 등 민속 문화가 살아있다.",
         "cultural_keywords": ["민속", "마을", "공동체", "활기", "탈놀이", "농악", "영남"],
-        "embedding_scores": {
-            "민속": 1.0, "마을": 1.0, "공동체": 0.9, "활기": 0.8, "농촌": 0.7,
-            "전통": 0.8, "역사": 0.7, "문화유산": 0.9, "농악": 0.9, "풍물": 0.8,
-            "사물놀이": 0.6, "영남": 1.0, "장구": 0.6,
-        },
     },
     {
         "id": "jeonju_hanok",
@@ -71,13 +77,7 @@ PLACES_RAW = [
         "lat": 35.8148,
         "lng": 127.1527,
         "description": "700여 채 한옥이 모인 국내 최대 한옥 군락지. 판소리·전통 음식·전통 공예가 살아숨쉬는 전통문화 중심지.",
-        "cultural_keywords": ["전통", "민속", "판소리", "호남", "공동체", "한옥", "문화유산"],
-        "embedding_scores": {
-            "민속": 0.8, "마을": 0.9, "공동체": 0.7, "활기": 0.7,
-            "전통": 1.0, "역사": 0.7, "문화유산": 0.8, "고요함": 0.5,
-            "판소리": 1.0, "산조": 0.7, "가곡": 0.6, "민요": 0.7,
-            "호남": 1.0, "가야금": 0.6,
-        },
+        "cultural_keywords": ["전통", "민속", "판소리", "호남", "공동체", "민요", "문화유산"],
     },
     {
         "id": "namdaemun",
@@ -88,336 +88,249 @@ PLACES_RAW = [
         "lat": 37.5581,
         "lng": 126.9768,
         "description": "조선시대부터 이어온 서울 최대 전통 재래시장. 상인들의 활기찬 에너지와 민중 문화가 공존하는 생동감 넘치는 공간.",
-        "cultural_keywords": ["민속", "활기", "공동체", "시장", "경기", "사물놀이", "민요"],
-        "embedding_scores": {
-            "민속": 0.9, "공동체": 0.8, "활기": 1.0, "농촌": 0.3,
-            "전통": 0.7, "역사": 0.6,
-            "민요": 0.8, "농악": 0.6, "사물놀이": 1.0, "풍물": 0.9,
-            "경기": 1.0, "장구": 0.8,
-        },
-    },
-]
-
-# ─────────────────────────────────────────────
-# 트랙 데이터 (국립국악원·공유마당 자유이용 음원 기반)
-# ─────────────────────────────────────────────
-TRACKS_RAW = [
-    # ── 정악 / 궁중음악 ──────────────────────────
-    {
-        "id": "sujecheon",
-        "title": "수제천",
-        "genre": "정악",
-        "sub_genre": "궁중음악",
-        "region": "경기",
-        "instruments": ["피리", "대금", "해금", "장구", "편종"],
-        "mood": ["장엄함", "정제됨", "의례적", "고요함"],
-        "description": "조선 궁중 연례악 중 하나로 왕실 의례에 사용된 대표적 정악. 느리고 장중한 흐름이 특징.",
-        "audio_path": "/audio/sujecheon.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "왕실": 0.9, "궁중": 1.0, "의례": 1.0, "장엄함": 1.0, "정제됨": 0.9,
-            "격식": 0.9, "고요함": 0.7,
-            "정악": 1.0, "궁중음악": 1.0, "관현악": 0.7,
-            "경기": 0.8, "피리": 1.0, "대금": 0.8,
-        },
-    },
-    {
-        "id": "yeomillak",
-        "title": "여민락",
-        "genre": "정악",
-        "sub_genre": "궁중음악",
-        "region": "경기",
-        "instruments": ["피리", "대금", "해금", "거문고", "가야금", "장구", "북"],
-        "mood": ["장엄함", "고귀함", "의례적"],
-        "description": "세종대왕이 창제한 궁중음악으로 '백성과 함께 즐긴다'는 뜻. 웅장하면서도 유려한 선율.",
-        "audio_path": "/audio/yeomillak.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "왕실": 1.0, "궁중": 1.0, "의례": 0.9, "장엄함": 1.0, "정제됨": 0.8,
-            "역사": 0.8, "격식": 0.8,
-            "정악": 1.0, "궁중음악": 1.0, "관현악": 0.9,
-            "경기": 0.8, "가야금": 0.7, "대금": 0.7,
-        },
-    },
-    {
-        "id": "jongmyo_jeryeak",
-        "title": "종묘제례악",
-        "genre": "정악",
-        "sub_genre": "제례음악",
-        "region": "경기",
-        "instruments": ["편경", "편종", "피리", "대금", "해금", "아쟁", "징", "북"],
-        "mood": ["장엄함", "의례적", "경건함", "엄숙함"],
-        "description": "유네스코 인류무형문화유산. 조선 왕실 종묘 제사에 쓰이는 음악으로 경건하고 웅장하다.",
-        "audio_path": "/audio/jongmyo.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "왕실": 1.0, "궁중": 1.0, "의례": 1.0, "장엄함": 1.0, "정제됨": 1.0,
-            "역사": 0.9, "격식": 1.0, "고요함": 0.3,
-            "정악": 1.0, "궁중음악": 0.9, "관현악": 0.8,
-            "경기": 0.8, "피리": 0.8,
-        },
-    },
-    # ── 영남 민속악 ──────────────────────────────
-    {
-        "id": "hahoe_byeolsingut",
-        "title": "하회별신굿 무가",
-        "genre": "민속악",
-        "sub_genre": "무속음악",
-        "region": "영남",
-        "instruments": ["장구", "징", "꽹과리", "북"],
-        "mood": ["활기", "신명남", "공동체적", "역동적"],
-        "description": "안동 하회마을 전승 하회별신굿탈놀이의 굿 음악. 마을 공동체의 신명과 축제 분위기.",
-        "audio_path": "/audio/hahoe_byeolsingut.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 1.0, "마을": 0.9, "공동체": 1.0, "활기": 1.0, "농촌": 0.7,
-            "전통": 0.8, "문화유산": 0.9,
-            "농악": 0.8, "사물놀이": 0.8, "풍물": 0.7,
-            "영남": 1.0, "장구": 1.0,
-        },
-    },
-    {
-        "id": "gyeonggi_minyo",
-        "title": "경기 민요 모음",
-        "genre": "민속악",
-        "sub_genre": "민요",
-        "region": "경기",
-        "instruments": ["장구", "소리(독창)", "해금"],
-        "mood": ["활기", "서정적", "흥겨움"],
-        "description": "경기 지역 민요 모음. 아리랑·도라지타령·노랫가락 등 친근하고 흥겨운 선율.",
-        "audio_path": "/audio/gyeonggi_minyo.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 0.9, "마을": 0.7, "공동체": 0.8, "활기": 0.9,
-            "전통": 0.7,
-            "민요": 1.0,
-            "경기": 1.0, "장구": 0.7,
-        },
-    },
-    {
-        "id": "yeongnam_minyo",
-        "title": "경상도 민요 모음",
-        "genre": "민속악",
-        "sub_genre": "민요",
-        "region": "영남",
-        "instruments": ["장구", "소리", "피리"],
-        "mood": ["흥겨움", "서정적", "구성짐"],
-        "description": "경상도 지역 민요 모음. 밀양아리랑·쾌지나칭칭나네 등 경상도 특유의 구성진 민요.",
-        "audio_path": "/audio/yeongnam_minyo.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 1.0, "마을": 0.8, "공동체": 0.8, "활기": 0.8,
-            "전통": 0.7,
-            "민요": 1.0,
-            "영남": 1.0, "장구": 0.7, "피리": 0.5,
-        },
-    },
-    # ── 호남 민속악 ──────────────────────────────
-    {
-        "id": "pansori_chunhyang",
-        "title": "춘향가 (판소리)",
-        "genre": "민속악",
-        "sub_genre": "판소리",
-        "region": "호남",
-        "instruments": ["소리(독창)", "고수(장구)"],
-        "mood": ["서정적", "구성짐", "애절함", "활기"],
-        "description": "대표적 판소리 다섯 마당 중 하나. 이도령과 춘향의 사랑 이야기를 소리꾼이 극적으로 풀어낸다.",
-        "audio_path": "/audio/pansori_chunhyang.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 0.8, "공동체": 0.6, "활기": 0.7,
-            "전통": 0.9, "역사": 0.7, "문화유산": 0.8,
-            "판소리": 1.0, "독주": 0.7,
-            "호남": 1.0,
-        },
-    },
-    {
-        "id": "gayageum_sanjo",
-        "title": "가야금 산조",
-        "genre": "민속악",
-        "sub_genre": "산조",
-        "region": "호남",
-        "instruments": ["가야금"],
-        "mood": ["서정적", "고요함", "명상적", "구성짐"],
-        "description": "가야금 단독 연주로 이루어지는 산조. 느린 진양조에서 빠른 휘모리까지 다양한 장단으로 구성.",
-        "audio_path": "/audio/gayageum_sanjo.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 0.7, "활기": 0.5, "고요함": 0.8,
-            "전통": 0.9,
-            "산조": 1.0, "독주": 1.0,
-            "호남": 0.9, "가야금": 1.0,
-        },
-    },
-    {
-        "id": "honam_nongak",
-        "title": "호남 농악",
-        "genre": "민속악",
-        "sub_genre": "농악",
-        "region": "호남",
-        "instruments": ["꽹과리", "징", "장구", "북", "소고"],
-        "mood": ["활기", "신명남", "공동체적", "역동적"],
-        "description": "호남 지역 농악. 마당놀이·판굿 등 역동적 퍼포먼스와 함께하는 신명나는 음악.",
-        "audio_path": "/audio/honam_nongak.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 1.0, "마을": 0.9, "공동체": 1.0, "활기": 1.0, "농촌": 0.9,
-            "농악": 1.0, "사물놀이": 0.8, "풍물": 1.0,
-            "호남": 1.0, "장구": 0.9,
-        },
-    },
-    # ── 사물놀이 / 시장 ───────────────────────────
-    {
-        "id": "samulnori",
-        "title": "사물놀이",
-        "genre": "민속악",
-        "sub_genre": "사물놀이",
-        "region": "경기",
-        "instruments": ["꽹과리", "징", "장구", "북"],
-        "mood": ["활기", "역동적", "신명남", "흥겨움"],
-        "description": "꽹과리·징·장구·북 4가지 타악기로 연주하는 실내 공연 음악. 농악의 실내 버전으로 박진감 넘침.",
-        "audio_path": "/audio/samulnori.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 1.0, "공동체": 0.9, "활기": 1.0,
-            "전통": 0.7,
-            "민요": 0.3, "농악": 0.8, "사물놀이": 1.0, "풍물": 0.8,
-            "경기": 0.9, "장구": 1.0,
-        },
-    },
-    {
-        "id": "pungmul",
-        "title": "풍물굿",
-        "genre": "민속악",
-        "sub_genre": "농악",
-        "region": "경기",
-        "instruments": ["꽹과리", "징", "장구", "북", "태평소"],
-        "mood": ["활기", "축제적", "신명남", "역동적"],
-        "description": "농사·명절·마을 행사에 쓰이는 전통 풍물 음악. 신명나는 리듬과 마을 공동체 에너지.",
-        "audio_path": "/audio/pungmul.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "민속": 1.0, "마을": 1.0, "공동체": 1.0, "활기": 1.0, "농촌": 0.9,
-            "농악": 1.0, "사물놀이": 0.7, "풍물": 1.0,
-            "경기": 0.8, "장구": 0.9,
-        },
-    },
-    # ── 가곡 / 독주 ──────────────────────────────
-    {
-        "id": "gagok",
-        "title": "가곡 (남창 우조)",
-        "genre": "정악",
-        "sub_genre": "가곡",
-        "region": "경기",
-        "instruments": ["가야금", "거문고", "대금", "해금", "피리", "장구"],
-        "mood": ["정제됨", "격식", "고요함", "우아함"],
-        "description": "조선 선비들이 즐기던 성악 장르. 정간보 악보로 전승되는 가장 격조 높은 전통 성악.",
-        "audio_path": "/audio/gagok.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "왕실": 0.5, "정제됨": 0.9, "격식": 1.0, "고요함": 0.9,
-            "전통": 0.9, "역사": 0.8,
-            "정악": 0.9, "가곡": 1.0, "독주": 0.5,
-            "경기": 0.9, "가야금": 0.7, "대금": 0.7,
-        },
-    },
-    {
-        "id": "daegeum_sanjo",
-        "title": "대금 산조",
-        "genre": "민속악",
-        "sub_genre": "산조",
-        "region": "경기",
-        "instruments": ["대금"],
-        "mood": ["서정적", "명상적", "고요함", "청아함"],
-        "description": "대금 단독 연주 산조. 맑고 청아한 대금 음색으로 한국적 서정을 표현하는 독주 장르.",
-        "audio_path": "/audio/daegeum_sanjo.mp3",
-        "source": "국립국악원",
-        "source_url": "https://www.gugak.go.kr",
-        "license_type": "CC BY",
-        "license_note": "국립국악원 디지털음원 공개 자료",
-        "is_derivative_allowed": True,
-        "embedding_scores": {
-            "전통": 0.8, "고요함": 1.0,
-            "산조": 1.0, "독주": 1.0,
-            "경기": 0.7, "대금": 1.0,
-        },
+        "cultural_keywords": ["민속", "활기", "공동체", "시장", "경기", "민요", "농악"],
     },
 ]
 
 
-def build_json():
-    root = os.path.join(os.path.dirname(__file__), "..", "..", "data")
-    os.makedirs(root, exist_ok=True)
+# ─────────────────────────────────────────────
+# 국악방송 CSV → 트랙 매핑 규칙
+# ─────────────────────────────────────────────
+# 민요 권역명 → (영문 id 접두, 매칭용 music_region, 분위기 태그)
+# music_region 은 rules.REGION_MAP 의 값과 일치시켜 _region_score 가 동작하게 한다.
+REGION_RULE: dict[str, dict[str, object]] = {
+    "경기도": {"en": "gyeonggi", "music_region": "경기", "mood": ["흥겨움", "경쾌함", "서정적"]},
+    "남도":   {"en": "namdo",    "music_region": "호남", "mood": ["구성짐", "애절함", "서정적"]},
+    "강원도": {"en": "gangwon",  "music_region": "강원", "mood": ["서정적", "애상적", "향토적"]},
+    "서도":   {"en": "seodo",    "music_region": "서도", "mood": ["애절함", "구성짐", "서정적"]},
+    "제주도": {"en": "jeju",     "music_region": "제주", "mood": ["서정적", "향토적", "애상적"]},
+}
 
-    # ── places.json ────────────────────────────
-    places = []
-    for p in PLACES_RAW:
-        rec = {k: v for k, v in p.items() if k != "embedding_scores"}
-        rec["embedding"] = make_embedding(p["embedding_scores"])
-        places.append(rec)
+# 권역별 선별 곡 수 (히어로 장소 커버리지 우선: 경기·남도 가중). 총합 ≈ 24.
+REGION_PICK: dict[str, int] = {
+    "경기도": 8,
+    "남도": 8,
+    "강원도": 2,
+    "제주도": 4,
+    "서도": 2,
+}
 
-    with open(os.path.join(root, "places.json"), "w", encoding="utf-8") as f:
-        json.dump(places, f, ensure_ascii=False, indent=2)
-    print(f"places.json 저장: {len(places)}건")
+# 연주자 필드에서 추출할 악기 토큰 (괄호 안 표기 기준).
+_KNOWN_INSTRUMENTS = ["장구", "피리", "대금", "아쟁", "가야금", "해금", "거문고", "북", "징", "꽹과리"]
 
-    # ── tracks.json ────────────────────────────
-    tracks = []
-    for t in TRACKS_RAW:
-        rec = {k: v for k, v in t.items() if k != "embedding_scores"}
-        rec["embedding"] = make_embedding(t["embedding_scores"])
-        tracks.append(rec)
+# 라이선스: 사용자 확인 — 국악방송 공공개방음원 = 공공누리 제1유형.
+_LICENSE_TYPE = "공공누리 제1유형"
 
-    with open(os.path.join(root, "tracks.json"), "w", encoding="utf-8") as f:
-        json.dump(tracks, f, ensure_ascii=False, indent=2)
-    print(f"tracks.json 저장: {len(tracks)}건")
+
+def _parse_instruments(performer_field: str) -> list[str]:
+    """'연주 : 이경섭(장구), 이호진(피리)...' 에서 악기 토큰 추출 + 소리(성악) 포함."""
+    found = [ins for ins in _KNOWN_INSTRUMENTS if ins in performer_field]
+    if "소리" in performer_field:
+        found.append("소리")
+    # 등장 순서 유지하며 중복 제거
+    seen: set[str] = set()
+    ordered = []
+    for ins in found:
+        if ins not in seen:
+            seen.add(ins)
+            ordered.append(ins)
+    return ordered or ["장구", "소리"]
+
+
+def _row_get(row: dict[str, str], idx: int) -> str:
+    return list(row.values())[idx].strip()
+
+
+def load_csv_tracks() -> list[dict]:
+    """CSV를 파싱하고 권역별로 REGION_PICK 만큼 선별해 트랙 레코드 리스트를 만든다."""
+    csv_path = os.path.join(_ROOT, _CSV_NAME)
+    if not os.path.exists(csv_path):
+        csv_path = os.path.join(_DATA_DIR, "raw", _CSV_NAME)
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV를 찾을 수 없습니다: {_CSV_NAME}")
+
+    with io.open(csv_path, encoding="euc-kr") as f:
+        rows = list(csv.DictReader(f))
+
+    picked_count: dict[str, int] = {r: 0 for r in REGION_PICK}
+    tracks: list[dict] = []
+    for row in rows:
+        code = _row_get(row, 0)          # 음원코드, e.g. "경기도-01"
+        title = _row_get(row, 1)         # 자료명
+        performers = _row_get(row, 3)    # 저자_연주자
+        year = _row_get(row, 4)          # 제작년도
+        keywords = _row_get(row, 6)      # 키워드
+        audio_url = _row_get(row, 7)     # 홈페이지 주소(URL) = wav 직링크
+
+        region_name = code.rsplit("-", 1)[0]
+        rule = REGION_RULE.get(region_name)
+        if rule is None or region_name not in REGION_PICK:
+            continue
+        if picked_count[region_name] >= REGION_PICK[region_name]:
+            continue
+        picked_count[region_name] += 1
+
+        num = code.rsplit("-", 1)[1] if "-" in code else str(picked_count[region_name])
+        tid = f"{rule['en']}_{num}"
+        instruments = _parse_instruments(performers)
+        region_label = region_name.replace("도", "") if region_name.endswith("도") else region_name
+
+        description = (
+            f"국악방송이 제작한 전국8도민요 MR 음원. {region_name} 권역의 민요 «{title}». "
+            f"키워드: {keywords}."
+        )
+        attribution = f"{title}(국악방송, {year}) — {_LICENSE_TYPE}(출처표시)"
+
+        tracks.append({
+            "id": tid,
+            "title": title,
+            "genre": "민요",
+            "sub_genre": f"{region_label} 민요",
+            "region": str(rule["music_region"]),
+            "instruments": instruments,
+            "mood": list(rule["mood"]),
+            "description": description,
+            "keywords": keywords,
+            "audio_path": f"/audio/igbf_{tid}.wav",
+            "audio_source_url": audio_url,
+            "asset_kind": "full_track",
+            "source": "국악방송",
+            "source_url": "https://www.igbf.kr",
+            "license_type": _LICENSE_TYPE,
+            "license_note": "국악방송 공공개방음원 (전국8도민요 MR, data.go.kr/igbf.kr)",
+            "is_derivative_allowed": True,
+            "attribution_text": attribution,
+        })
+
+    return tracks
+
+
+# ─────────────────────────────────────────────
+# 공유마당 궁중음악·정악 큐레이션 (경복궁 등 궁궐 테마용)
+# data/raw/gongu_sound.json 의 «국악연주곡_*» 시리즈에서 정악 레퍼토리를 고른다.
+# 전부 다운로드 가능한 MP3 + CCL(BY).
+# ─────────────────────────────────────────────
+_GONGU_JSON = os.path.join(_DATA_DIR, "raw", "gongu_sound.json")
+
+# 정악 합주/실내악 대표 악기 (세부 악기 메타가 없어 권역 표준 편성 사용).
+_JEONGAK_ENSEMBLE = ["피리", "대금", "해금", "가야금", "거문고", "장구"]
+_GAGOK_ENSEMBLE = ["가야금", "거문고", "대금", "해금", "피리", "장구"]
+
+# (제목 매칭어, sub_genre, mood, 악기, 설명템플릿). region 은 전부 경기(정악 중심).
+COURT_PICKS: list[dict] = [
+    {"match": "여민락", "sub": "궁중음악", "mood": ["장엄함", "정제됨", "의례적"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "조선 궁중 정악 «여민락». 백성과 함께 즐긴다는 뜻의 웅장하고 정제된 궁중 관현악."},
+    {"match": "유초신지곡_상령산", "sub": "영산회상", "mood": ["고요함", "명상적", "정제됨"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "정악 실내악 영산회상 중 상령산(유초신지곡). 느리고 명상적인 풍류 관현악."},
+    {"match": "중광지곡_상령산", "sub": "영산회상", "mood": ["고요함", "우아함", "정제됨"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "정악 실내악 영산회상 중 상령산(중광지곡). 거문고 중심의 정제된 풍류 합주."},
+    {"match": "유초신지곡_중령산", "sub": "영산회상", "mood": ["고요함", "정제됨", "우아함"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "정악 실내악 영산회상 중 중령산. 상령산에 이어지는 유려한 풍류 관현악."},
+    {"match": "천년만세", "sub": "풍류", "mood": ["우아함", "정제됨", "흥겨움"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "정악 실내악 천년만세. 계면가락도드리 등으로 이어지는 우아한 풍류 합주."},
+    {"match": "우조 이수대엽", "sub": "가곡", "mood": ["우아함", "격식", "고요함"],
+     "ins": _GAGOK_ENSEMBLE,
+     "desc": "조선 선비의 정가 가곡, 우조 이수대엽 «버들은». 격조 높은 전통 성악."},
+    {"match": "계면조 태평가", "sub": "가곡", "mood": ["정제됨", "격식", "평온함"],
+     "ins": _GAGOK_ENSEMBLE,
+     "desc": "정가 가곡 계면조 태평가 «이랴도». 남녀창이 어우러지는 격식 있는 전통 성악."},
+    {"match": "만파정식지곡", "sub": "궁중음악", "mood": ["장엄함", "정제됨", "의례적"],
+     "ins": _JEONGAK_ENSEMBLE,
+     "desc": "궁중 정악 만파정식지곡. 장중하고 정제된 궁중 관현악.",
+     "exclude": ["피아노", "ver"]},
+]
+
+# CCL 표기 → licensing.py 가 아는 라이선스 키로 정규화.
+_CCL_NORMALIZE = {
+    "CCL(BY)": "CC BY", "CCL(BY-SA)": "CC BY-SA", "CCL(BY-ND)": "CC BY-ND",
+    "CCL(BY-NC)": "CC BY-NC", "CCL(BY-NC-SA)": "CC BY-NC-SA", "CCL(BY-NC-ND)": "CC BY-NC-ND",
+}
+
+
+def load_court_tracks() -> list[dict]:
+    """공유마당 «국악연주곡_*» 에서 정악 레퍼토리를 큐레이션해 트랙 레코드를 만든다."""
+    if not os.path.exists(_GONGU_JSON):
+        print(f"[경고] {_GONGU_JSON} 없음 → 궁중음악 트랙 건너뜀")
+        return []
+    with open(_GONGU_JSON, encoding="utf-8") as f:
+        pool = json.load(f)
+    yeon = [x for x in pool if x.get("title", "").startswith("국악연주곡")]
+
+    tracks: list[dict] = []
+    for pick in COURT_PICKS:
+        exclude = pick.get("exclude", ["피아노", "ver."])
+        match_word = pick["match"]
+        chosen = next(
+            (x for x in yeon
+             if match_word in x["title"] and not any(e in x["title"] for e in exclude)),
+            None,
+        )
+        if chosen is None:
+            print(f"[경고] 궁중음악 매칭 실패: {match_word}")
+            continue
+        sid = chosen["source_id"]
+        title = chosen["title"].replace("국악연주곡_", "").strip()
+        author = chosen.get("author") or "저작자 미상"
+        license_type = _CCL_NORMALIZE.get(chosen.get("license_type", ""), "CC BY")
+        tracks.append({
+            "id": f"gongu_{sid}",
+            "title": title,
+            "genre": "정악",
+            "sub_genre": pick["sub"],
+            "region": "경기",  # 정악·궁중음악은 경기(서울) 중심
+            "instruments": list(pick["ins"]),
+            "mood": list(pick["mood"]),
+            "description": pick["desc"],
+            "keywords": f"정악,궁중음악,{pick['sub']}",
+            "audio_path": f"/audio/gongu_{sid}.mp3",
+            "audio_source_url": chosen["audio_url"],
+            "asset_kind": "full_track",
+            "source": "공유마당",
+            "source_url": chosen.get("source_url", "https://gongu.copyright.or.kr"),
+            "license_type": license_type,
+            "license_note": "공유마당 공유저작물 (국악연주곡 시리즈)",
+            "is_derivative_allowed": True,
+            "attribution_text": f"«{title}» / {author} / {license_type} (출처: 공유마당)",
+        })
+    return tracks
+
+
+def _write_payload(filename: str, list_key: str, records: list[dict],
+                   model: str, dim: int) -> None:
+    payload = {
+        "embedding_model": model,
+        "embedding_dim": dim,
+        "embed_text_recipe": EMBED_TEXT_RECIPE,
+        list_key: records,
+    }
+    with open(os.path.join(_DATA_DIR, filename), "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"{filename} 저장: {len(records)}건 ({model}, {dim}차원)")
+
+
+def build_json() -> None:
+    os.makedirs(_DATA_DIR, exist_ok=True)
+
+    places = [dict(p) for p in PLACES_RAW]
+    tracks = load_court_tracks() + load_csv_tracks()  # 정악(궁중) + 전국8도민요
+
+    # 한 번에 임베딩해 places·tracks 가 동일 모드/차원을 쓰도록 보장한다.
+    place_texts = [place_recipe(p) for p in places]
+    track_texts = [track_recipe(t) for t in tracks]
+    all_vecs, model, dim = embed_corpus(place_texts + track_texts)
+
+    for p, vec in zip(places, all_vecs[:len(places)]):
+        p["embedding"] = vec
+    for t, vec in zip(tracks, all_vecs[len(places):]):
+        t["embedding"] = vec
+
+    _write_payload("places.json", "places", places, model, dim)
+    _write_payload("tracks.json", "tracks", tracks, model, dim)
 
 
 if __name__ == "__main__":

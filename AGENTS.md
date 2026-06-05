@@ -50,13 +50,15 @@
 ### 3.1 실행 명령 (로컬)
 
 ```bash
-cp .env.example .env                      # 키 채우기 (§10)
-cd backend && python -m venv .venv && source .venv/bin/activate
+cp .env.example .env                              # 키 채우기 (§10). HF_API_KEY 넣으면 768차원, 비우면 키워드 폴백
+cd backend && python -m venv venv
+venv\Scripts\activate                             # Windows; Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
 cd ../frontend && npm install
-cd backend && python -m prep.build_all    # places/tracks/synopsis_examples/reasoning/audio 생성
-cd backend && uvicorn main:app --reload --port 8000
-cd frontend && npm run dev                 # http://localhost:5173
+cd ../backend && python prep/generate_data.py     # 장소4 + 민요24(CSV) + 정악8(공유마당) + 768차원 임베딩 → places/tracks.json
+python prep/download_audio.py                     # 음원 다운로드: 민요=wav 30초 트림, 정악=mp3 전체 (ffmpeg 불요) → data/audio/
+uvicorn main:app --reload --port 8000
+cd ../frontend && npm run dev                     # http://localhost:5173
 ```
 
 ## 4. 디렉터리 구조
@@ -64,28 +66,41 @@ cd frontend && npm run dev                 # http://localhost:5173
 ```
 project-root/
 ├── AGENTS.md           # 빌드/실행 규칙
-├── PRD.md              # 출품 부문·타깃·전략
 ├── .env.example
 ├── .gitignore
+├── 재단법인국악방송_전국8도민요MR_20240301.csv  # 국악방송 원본 데이터 (105곡, EUC-KR)
 ├── data/
-│   ├── raw/            # 원본 다운로드
-│   ├── places.json     # 장소 데이터 (+ 임베딩, 메타)
-│   ├── tracks.json     # 음원 메타 + 임베딩 + 라이선스 필드
-│   ├── synopsis_examples.json  # 히어로 예시 시놉시스 (+ 사전 임베딩)
-│   ├── reasoning.json  # 히어로 매칭 근거 (키 "ctx_id:track_id")
-│   └── audio/          # 음원 파일, mp3 통일 (gitignore)
+│   ├── raw/gongu_sound.json  # 공유마당 음원 5423건 메타 (정악 큐레이션 소스)
+│   ├── places.json     # {meta, places:[4곳]} + 768차원 임베딩 ✅ (dict 포맷)
+│   ├── tracks.json     # {meta, tracks:[32곡]} 정악8(공유마당)+민요24(국악방송) ✅
+│   ├── reasoning.json  # 구 트랙용 근거 — 신 트랙 id와 불일치, 템플릿 폴백 동작 🔶
+│   └── audio/          # igbf_*.wav 24(30초 트림) + gongu_*.mp3 8(정악) — gitignore ✅
+│   [미생성] synopsis_examples.json  # 히어로 예시 시놉시스 + 사전 임베딩
 ├── backend/
-│   ├── main.py         # FastAPI (CORS, StaticFiles)
-│   ├── matching.py     # 하이브리드 매칭 엔진
-│   ├── embeddings.py   # 임베딩 로드/유사도 + HF Inference 호출 + 일관성 assert
-│   ├── licensing.py    # 라이선스 → 사용가능범위 파생 (§5.5)
-│   ├── generation.py   # 생성(보조) + 폴백
-│   ├── rules/          # 매핑표·규칙표 JSON
-│   ├── prep/           # 오프라인 가공 스크립트 (.env 읽음)
-│   ├── tests/          # 매칭/라이선스 스모크 테스트
+│   ├── main.py         # FastAPI (CORS, StaticFiles, 임베딩 가드, /api/places·places/suggest·match·generate) ✅
+│   ├── matching.py     # 하이브리드 매칭 (4신호 가중합, 차원 무관, weights 오버라이드 지원) ✅
+│   ├── embeddings.py   # HF Inference(768)+키워드 폴백(34) + embed_query(런타임) + 코사인 + dict 로더 ✅
+│   ├── licensing.py    # 라이선스 → commercial_ok/derivative_ok 파생 + use_case 필터 ✅
+│   ├── generation.py   # fal.ai BGM 생성 + 폴백 ✅
+│   ├── rules.py        # 지역 권역 매핑 + 장소 유형별 장르 가중 (단일 파일) ✅
+│   ├── prep/
+│   │   ├── generate_data.py   # 장소 + CSV→민요24 + 공유마당→정악8 + 임베딩 → dict JSON ✅
+│   │   └── download_audio.py  # wav=Range 30초 트림 / mp3=전체 다운로드 (순수 파이썬) ✅
+│   │   [미작성] collect_places.py  # TourAPI 장소 수집 (TOURAPI_KEY 대기)
+│   [미생성] tests/     # 매칭/라이선스 스모크 테스트
 │   └── requirements.txt
-├── frontend/ (src/App.tsx, components/, api.ts ...)
-└── README.md
+├── frontend/
+│   └── src/
+│       ├── App.tsx                    # 자유텍스트+장소선택·매칭결과·필터·재생 ✅
+│       ├── api.ts                     # fetchPlaces·fetchPlaceSuggestions·fetchMatch·fetchMatchByText·fetchGenerate ✅
+│       └── components/
+│           ├── SynopsisSearch.tsx     ✅ (자유 시놉시스·무드 입력)
+│           ├── PlaceSelector.tsx      ✅ (검색 + 빈 결과 시 의미 기반 연관 장소 추천)
+│           ├── TrackCard.tsx          ✅ (재생·라이선스·ScoreBar·다운로드 버튼)
+│           ├── AttributionModal.tsx   ✅ (출처표시 복사 + 다운로드 + 면책)
+│           ├── ScoreBar.tsx           ✅
+│           └── GenerateBGM.tsx        ✅
+└── (PRD.md, README.md 미생성)
 ```
 
 ## 5. 데이터 (문화 공공데이터)
@@ -99,8 +114,14 @@ project-root/
 | 소스 | 위치 | 형식 | 비고 |
 | --- | --- | --- | --- |
 | 국가유산청_문화재 공간 정보 | data.go.kr/data/3070426 | XML | 좌표·유형·설명. 지정유산 장소 1차 소스. |
-| 한국관광공사 TourAPI(국문) | data.go.kr/data/15101578 | XML/**JSON** | `&_type=json`. 관광지·문화시설·축제·전통시장. |
+| 한국관광공사 TourAPI(국문) | data.go.kr/data/15101578 | XML/**JSON** | EndPoint `apis.data.go.kr/B551011/KorService2`. `&_type=json`. 관광지·문화시설·축제·전통시장. |
 | (지정유산 상세, 선택) | 국가유산포털(khs.go.kr) | XML | 구 문화재청 엔드포인트 폐기 → 현재 명세 재확인. |
+
+> **TourAPI 수집 방식(확정, `collect_places.py`로 구현 예정)**: 지역 훑기(잡음 많음) 대신 **키워드 검색**으로 문화 색 뚜렷한 장소만 수집. 키워드: 한옥마을·서원·민속마을·전통시장·향교·고궁·종갓집.
+> - `/searchKeyword2` (목록: title·mapx/y·contenttypeid·addr1) → 장소별 `/detailCommon2` (overview=설명) 2단계 호출.
+> - **type 매핑**: contenttypeid(숫자, 너무 거침)만으론 궁궐/한옥마을 구분 불가 → 제목 키워드로 `TYPE_GENRE_WEIGHTS` 키 추론. 미스 시 generic(유형 점수 0, 지역+의미로 매칭).
+> - **cultural_keywords**: type별 템플릿으로 자동 생성(LLM 불필요). music_region은 addr1 → `rules.REGION_MAP`. 좌표 WGS84.
+> - **TOURAPI_KEY**(.env, Decoding 키) 대기 중. 수집 장소는 generate_data가 hero 4곳과 함께 자동 임베딩.
 
 ### 5.2 음원 소스 — 역할 구분 (중요)
 
@@ -171,8 +192,10 @@ final = 0.30*지역 + 0.25*유형 + 0.30*의미 + 0.15*태그     # 각 항 ∈ 
 ## 7. API 엔드포인트 (FastAPI)
 
 - `GET /api/places` → 데모 장소 목록
-- `GET /api/examples` → 히어로 예시 시놉시스 목록(사전 임베딩)
-- `POST /api/match` `{ place_id? , query_text? , use_case }` → `{ tracks: [...], reasoning }`
+- `GET /api/places/suggest?q=&k=3` → 검색어 임베딩 ↔ 보유 장소 코사인 → 의미 가까운 장소 + `similarity`. **구현됨** (없는 장소 검색 시 연관 장소 추천). `embed_query` 사용(런타임 임베딩, 폴백 보유).
+- `GET /api/examples` → 히어로 예시 시놉시스 목록(사전 임베딩) — **미구현**(프론트 하드코딩 칩으로 대체)
+- `POST /api/match` `{ place_id? , query_text? , use_case }` → `{ place, tracks: [...] }` (각 track에 `reasoning` 포함)
+  - **구현 주의**: 실제 응답 필드는 `score`(최종) + `score_detail{region,type,semantic,tag}` (위 예시의 `final_score`/`scores`와 명칭 다름). query_text 경로는 weights=(0,0,0.8,0.2) 재정규화.
   - `query_text`가 오면 §3 런타임 임베딩(HF Inference, 폴백 보유). `place_id`면 사전 임베딩 사용.
   - 각 트랙은 **최종 점수 + 정규화된 4개 component 점수 분리**(레이더 시각화 전제) + 라이선스 파생값:
     ```json
@@ -215,15 +238,53 @@ final = 0.30*지역 + 0.25*유형 + 0.30*의미 + 0.15*태그     # 각 항 ∈ 
 
 > 스코프 주의: **매칭 엔진(Phase 2)을 먼저 완성**한 뒤 입력 레이어(자유 텍스트)·다운로드를 얹는다. 마감 대비 한 번에 피벗하지 말 것.
 
-- **Phase 1 — 데이터 준비** ✅
-  - DoD: places/tracks/synopsis_examples/reasoning/audio 생성. 임베딩 **실제 ko-sroberta**(더미 금지), 차원 일치. 라이선스 원문 검증 + `commercial_ok`/`is_derivative_allowed` 파생 완료. `asset_kind` 분류 완료.
-- **Phase 2 — 매칭 엔진**
-  - DoD: 정규화된 4신호 가중합 + use_case 필터 + `POST /api/match`(place_id 경로). 히어로 장소 4곳 라이브 계산·점수순·근거 포함, 하드코딩 없음. `tests/`에 매칭·라이선스 파생 스모크 테스트 통과.
-- **Phase 3 — 프론트 끝-끝 + 자유 텍스트 입력**
-  - DoD: 예시/장소 경로(안정) + 자유 텍스트 경로(런타임 임베딩 + 폴백). 레이더 점수·라이선스 카드(실제값)·다운로드·빈/에러 폴백 동작. CORS·autoplay 무결.
-- **Phase 4 — 생성 보조**
-  - DoD: `generation.py` + 폴백. fal.ai 실패 시 캐싱본. `is_derivative_allowed=false` 제외.
-- **Phase 5 — 다듬기·배포**
-  - DoD: 근거·라이선스/출처·다운로드 안내 다듬기. 배포(프론트 Vercel/Netlify, 백엔드 Render/Fly 등). ⚠️ 무료 티어 디스크 ephemeral → 오디오는 빌드/리포 포함. 라이브 시연 리허설 + 로컬 백업.
+- **Phase 1 — 데이터 준비** ✅ 완료 (실제 재생 + 768차원 의미 매칭)
+  - ✅ places.json (4곳), tracks.json (**32곡 = 정악8 + 민요24**)
+  - ✅ **실제 재생 가능 음원 32개** — 사용자가 수동으로 파일 넣을 필요 없음:
+    - 민요 24곡: 국악방송 wav 원본 → `download_audio.py` 순수 파이썬 Range 30초 트림 → `igbf_*.wav` (ffmpeg 불요)
+    - 정악 8곡: 공유마당 «국악연주곡_» (여민락·영산회상·가곡 등) mp3 전체 다운로드 → `gongu_*.mp3` (mp3는 압축이라 트림 불가, 전체 받음)
+  - ✅ 라이선스 검증: 민요=**공공누리 제1유형**, 정악=**CC BY** → `commercial_ok`/`derivative_ok`/`attribution_text` 파생
+  - ✅ `asset_kind`, `embedding_model`·`embedding_dim`·`embed_text_recipe` 파일 레벨 메타 (dict 포맷)
+  - ✅ **임베딩 768차원 ko-sroberta 적용** (HF_API_KEY 설정됨). HF 미설정 시 키워드 폴백(34차원)으로 자동 강등. 빌드 시 모드 1회 결정 → places·tracks 차원 일관.
+    - ⚠️ HF 주의: ko-sroberta는 task가 `sentence-similarity`라 `router.huggingface.co/hf-inference/.../pipeline/feature-extraction` 호출 + **Inference 권한 있는 토큰(Write)** 필요. 구 `api-inference.huggingface.co`는 폐기됨.
+  - ✅ **매칭 검증**: 경복궁(궁궐)→여민락·영산회상(정악), 전주→호남민요, 남대문→경기민요, 하회→민요(유형). 지역+유형+의미 모두 기여.
+  - ❌ `synopsis_examples.json` 미생성 (자유 텍스트 경로에 필요)
+  - 🔶 `reasoning.json` 은 구 트랙 id 기준 — 신 트랙과 불일치하지만 main.py 템플릿 근거로 폴백(정상 동작)
 
-> Phase 1~3이면 라이브 시연 요건 충족. Phase 4가 기술 임팩트(AI 활용)용.
+- **Phase 2 — 매칭 엔진** 🔶 거의 완료
+  - ✅ `matching.py`: 4신호 가중합 (지역 30% + 유형 25% + 의미 30% + 태그 15%), `[0,1]` 정규화
+  - ✅ `rules.py`: 지역 권역 매핑 + 장소 유형별 장르 가중
+  - ✅ `licensing.py`: `commercial_ok`/`derivative_ok` 파생 + `use_case` 필터
+  - ✅ `POST /api/match` (place_id 경로), 점수순·근거 포함, 하드코딩 없음
+  - ❌ `backend/tests/` 없음 — 매칭·라이선스 스모크 테스트 미작성
+
+- **Phase 3 — 프론트 끝-끝 + 자유 텍스트 입력** ✅ 핵심 경로 완료
+  - ✅ 장소 선택 → 매칭 결과 → 재생 (end-to-end 동작)
+  - ✅ **자유 텍스트 입력(query_text) 구현** — `SynopsisSearch` 컴포넌트 + `POST /api/match {query_text}` + 런타임 HF 임베딩(`embed_query`). 예시 칩·Ctrl+Enter. 검증: "비 내리는 한옥…" → 영산회상(정악).
+  - ✅ 자유 텍스트는 지역·유형 신호 없어 의미·태그 가중(0,0,0.8,0.2) 재정규화 (matching.match weights 파라미터)
+  - ✅ HF Inference 런타임 임베딩 연동 (실패 시 키워드 폴백)
+  - ✅ 장르 필터 칩 + "수익화 가능만 보기" 체크박스
+  - ✅ 라이선스 배지 (`commercial_ok`·`derivative_ok` 실제값 기반)
+  - ✅ ScoreBar (4개 component 점수 시각화) — 레이더/게이지는 미적용(ScoreBar로 대체)
+  - ✅ autoplay 잠금 해제 패턴, 빈 결과·에러 상태 처리
+  - ✅ **다운로드 + 출처표시 팝업** (`AttributionModal`) — 수익화+편집 가능 음원만 다운로드 버튼 활성, 클릭 시 `attribution_text` 복사 가이드 + 파일 다운로드. "보증서 미발급" 면책 문구 포함 (AGENTS.md §8 준수).
+  - ✅ **의미 기반 연관 장소 추천** — `GET /api/places/suggest` + PlaceSelector 빈 결과 시 디바운스 호출. 없는 장소 검색 시 가까운 보유 장소 칩 제안(예: "북촌 한옥마을"→전주 한옥마을 84%). 장소가 늘면 품질 향상.
+  - ❌ `GET /api/examples` 엔드포인트 없음 (예시는 프론트 하드코딩 칩으로 대체)
+  - ❌ 레이더/게이지 차트 (ScoreBar로 대체 중)
+
+- **Phase 3.5 — 장소 확장 (TourAPI 수집)** 🔶 대기 중
+  - 키워드 기반 `collect_places.py` 설계 확정 (§5.1). **TOURAPI_KEY(.env) 입력 시 착수.**
+  - 수집 → type/cultural_keywords 자동 채움 → generate_data 자동 임베딩 → 연관 장소 추천 품질 동반 상승.
+
+- **Phase 4 — 생성 보조** 🔶 구조 완료, 미검증
+  - ✅ `generation.py`: fal.ai stable-audio + 폴백 (`_FALLBACK` dict)
+  - ✅ `POST /api/generate` 구현, `is_derivative_allowed=false` 제외
+  - ❌ fal.ai 실제 동작 미검증 (FAL_API_KEY 없으면 폴백만 반환)
+  - ❌ 폴백 음원 파일(`gen_*_fallback.mp3`)이 `data/audio/`에 없음
+
+- **Phase 5 — 다듬기·배포**
+  - ❌ 미시작
+  - ⚠️ 무료 티어 디스크 ephemeral → 오디오는 빌드/리포 포함 필요. 라이브 시연 리허설 + 로컬 백업.
+
+> **현재 시연 가능 범위**: 백엔드+프론트 기동 후 장소 선택 → 매칭 결과 표시까지. 음원 파일(`data/audio/`)이 없으면 재생 버튼은 렌더링되지만 소리가 나지 않는다.
+> Phase 1~3 완료 시 라이브 시연 요건 충족. Phase 4가 기술 임팩트(AI 활용)용.

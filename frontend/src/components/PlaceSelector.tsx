@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Place } from "../api";
+import { fetchPlaceSuggestions } from "../api";
 
 interface Props {
   places: Place[];
@@ -34,6 +35,27 @@ export default function PlaceSelector({ places, selected, onSelect, loading }: P
   });
 
   const hasActiveFilter = search.trim() !== "" || typeFilter !== null;
+
+  // 검색 결과가 없을 때 의미가 가까운 보유 장소를 추천 (디바운스).
+  const [suggestions, setSuggestions] = useState<Place[]>([]);
+  const [suggesting, setSuggesting] = useState(false);
+  const noLocalMatch = filtered.length === 0;
+  const query = search.trim();
+
+  useEffect(() => {
+    if (query.length < 2 || !noLocalMatch) {
+      setSuggestions([]);
+      return;
+    }
+    setSuggesting(true);
+    const handle = setTimeout(() => {
+      fetchPlaceSuggestions(query)
+        .then(setSuggestions)
+        .catch(() => setSuggestions([]))
+        .finally(() => setSuggesting(false));
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [query, noLocalMatch]);
 
   return (
     <section>
@@ -116,7 +138,7 @@ export default function PlaceSelector({ places, selected, onSelect, loading }: P
           })}
         </div>
       ) : (
-        <div className="py-10 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-200">
+        <div className="py-8 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-200 px-4">
           <div className="text-2xl mb-2">🔍</div>
           <p>
             {typeFilter && search
@@ -126,9 +148,45 @@ export default function PlaceSelector({ places, selected, onSelect, loading }: P
               : `"${search}"`}
             에 맞는 장소가 없습니다.
           </p>
+
+          {/* 의미 기반 연관 장소 추천 */}
+          {query.length >= 2 && !typeFilter && (
+            <div className="mt-4">
+              {suggesting && suggestions.length === 0 ? (
+                <p className="text-xs text-stone-400">비슷한 장소 찾는 중…</p>
+              ) : suggestions.length > 0 ? (
+                <>
+                  <p className="text-xs text-stone-500 mb-2">
+                    혹시 이런 장소를 찾으셨나요?
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {suggestions.map((p) => (
+                      <button
+                        key={p.id}
+                        disabled={loading}
+                        onClick={() => onSelect(p)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stone-200
+                                   bg-white text-stone-600 hover:border-jade hover:text-jade transition-colors
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <span>{TYPE_ICON[p.type] ?? "📍"}</span>
+                        <span className="font-medium">{p.name}</span>
+                        {typeof p.similarity === "number" && (
+                          <span className="text-[10px] text-stone-400">
+                            {Math.round(p.similarity * 100)}%
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </div>
+          )}
+
           {hasActiveFilter && (
             <button
-              className="mt-2 text-xs text-jade underline underline-offset-2"
+              className="mt-4 block mx-auto text-xs text-jade underline underline-offset-2"
               onClick={() => { setSearch(""); setTypeFilter(null); }}
             >
               필터 초기화

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import type { Track } from "../api";
+import AttributionModal from "./AttributionModal";
 import ScoreBar from "./ScoreBar";
 
 interface Props {
@@ -19,6 +20,10 @@ const LICENSE_STYLE: Record<string, string> = {
 export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [showDownload, setShowDownload] = useState(false);
+
+  // 크리에이터 다운로드 허용 = 수익화 + 편집 모두 가능 (AGENTS.md §5.5 creator)
+  const creatorSafe = track.commercial_ok === true && track.derivative_ok === true;
 
   const handlePlayClick = () => {
     const el = audioRef.current;
@@ -127,10 +132,33 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
         >
           {isPlaying ? "⏸ 일시정지" : "▶ 재생"}
         </button>
-        <span className="text-xs text-stone-400">
+
+        {/* 크리에이터 다운로드: 수익화+편집 가능 음원만 */}
+        {creatorSafe ? (
+          <button
+            className="text-xs px-3 py-1.5 rounded-lg border border-jade text-jade
+                       hover:bg-jade hover:text-white transition-colors"
+            onClick={() => setShowDownload(true)}
+          >
+            ⬇ 다운로드
+          </button>
+        ) : (
+          <span
+            className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 text-stone-300 cursor-not-allowed"
+            title="수익화 또는 편집 조건을 충족하지 않아 크리에이터 다운로드를 제공하지 않습니다"
+          >
+            ⬇ 다운로드
+          </span>
+        )}
+
+        <span className="text-xs text-stone-400 ml-auto">
           {track.region} 권역
         </span>
       </div>
+
+      {showDownload && (
+        <AttributionModal track={track} onClose={() => setShowDownload(false)} />
+      )}
     </div>
   );
 }
