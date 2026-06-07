@@ -13,6 +13,8 @@ export interface Place {
   description: string;
   cultural_keywords: string[];
   similarity?: number;  // 추천 결과에만 존재 (검색어와의 의미 유사도 0~1)
+  image_url?: string;
+  image_copyright?: string;
 }
 
 export interface ScoreDetail {
@@ -37,6 +39,8 @@ export interface Track {
   license_type: string;
   license_note: string;
   is_derivative_allowed: boolean;
+  asset_kind?: string;  // "full_track" | "sample_loop"
+  audio_available?: boolean;  // 로컬 오디오 파일 존재 여부 (false면 재생 비활성)
   commercial_ok?: boolean;
   derivative_ok?: boolean;
   attribution_text?: string;
@@ -47,9 +51,21 @@ export interface Track {
 
 export type UseCase = "listen" | "creator" | "place_bgm";
 
+export interface Region {
+  key: string;
+  label: string;
+  tori: string;
+  color: string;
+  members: string[];
+  description: string;
+  songs: string[];
+}
+
 export interface MatchResult {
   place: Place;
   tracks: Track[];
+  // 권역 클릭 결과에만 존재: 이 권역의 국악 전체(추천 외 둘러보기·필터용).
+  region_tracks?: Track[];
 }
 
 export async function fetchPlaces(): Promise<Place[]> {
@@ -86,11 +102,61 @@ export async function fetchMatchByText(query_text: string, use_case: UseCase = "
   return res.json();
 }
 
-export async function fetchGenerate(place_id: string): Promise<{ audio_url: string }> {
+/** 소리 지도 권역(토리) 프로필 목록 (색상·범례·대표곡). */
+export async function fetchRegions(): Promise<Region[]> {
+  const res = await fetch(`${BASE}/regions`);
+  if (!res.ok) throw new Error("권역 목록 로드 실패");
+  return res.json();
+}
+
+/** 소리 지도에서 권역을 클릭해 그 고장의 토리에 맞는 음악을 매칭. */
+export async function fetchMatchByRegion(region: string, use_case: UseCase = "listen"): Promise<MatchResult> {
+  const res = await fetch(`${BASE}/match`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ region, use_case }),
+  });
+  if (!res.ok) throw new Error("매칭 요청 실패");
+  return res.json();
+}
+
+/** 선택한 권역 '안에서' 시놉시스·무드로 검색 (권역 한정 + 의미 매칭). */
+export async function fetchMatchByRegionQuery(
+  region: string,
+  query_text: string,
+  use_case: UseCase = "listen",
+): Promise<MatchResult> {
+  const res = await fetch(`${BASE}/match`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ region, query_text, use_case }),
+  });
+  if (!res.ok) throw new Error("매칭 요청 실패");
+  return res.json();
+}
+
+export interface BgmLicense {
+  license_type: string;
+  source: string;
+  source_url?: string;
+  attribution_text: string;  // 복사해 크레딧에 붙여 넣을 출처표시 문구
+  commercial_ok: boolean;
+  derivative_ok: boolean;
+  personal_use_only?: boolean;  // true=AI 생성물(개인적 사용 권장)
+}
+
+export interface GenerateResult {
+  audio_url: string;
+  generated?: boolean;       // true=AI 생성, false=캐싱본(매칭 음원) 폴백
+  fallback_title?: string;
+  license?: BgmLicense;
+}
+
+export async function fetchGenerate(place_id: string, prompt?: string): Promise<GenerateResult> {
   const res = await fetch(`${BASE}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ place_id }),
+    body: JSON.stringify({ place_id, prompt: prompt?.trim() || undefined }),
   });
   if (!res.ok) throw new Error("BGM 생성 실패");
   return res.json();

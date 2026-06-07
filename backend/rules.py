@@ -20,6 +20,18 @@ REGION_MAP: dict[str, str] = {
 # 매핑되지 않는 지역의 기본 권역.
 DEFAULT_MUSIC_REGION = "기타"
 
+# ── 권역 비특정(전국) 트랙 처리 ────────────────────────
+# 국악 BGM 등은 특정 권역 음악이 아니라 어디서나 어울리는 범용 음원이다.
+# region="전국"(또는 빈값)을 0점 처리하면 장소 매칭에서 구조적으로 묻히므로
+# 중립 부분점수를 준다 (진짜 권역 일치 1.0 보다는 낮게 유지 → 장소 정체성 우선).
+WILDCARD_REGIONS = {"전국", "", "-"}
+WILDCARD_REGION_SCORE = 0.6
+
+# ── 장르 기본 유형점수 (장소 유형 무관 baseline) ───────
+# 국악 BGM 처럼 특정 장소 유형에 묶이지 않고 두루 어울리는 장르에 floor 를 준다.
+# 장소별 가중(TYPE_GENRE_WEIGHTS)이 더 높으면 그 값을 쓰고, 없으면 이 baseline 적용.
+GENRE_TYPE_BASELINE: dict[str, float] = {"국악 BGM": 0.5}
+
 # ── 장소 유형 → 선호 장르 가중 (AGENTS.md §6-2) ────────
 # 값은 [0.0, 1.0] 가중치. genre 또는 sub_genre가 키에 걸리면 그 가중을 쓴다.
 TYPE_GENRE_WEIGHTS: dict[str, dict[str, float]] = {

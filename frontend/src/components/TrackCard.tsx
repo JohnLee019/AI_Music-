@@ -2,12 +2,14 @@ import { useRef, useState } from "react";
 import type { Track } from "../api";
 import AttributionModal from "./AttributionModal";
 import ScoreBar from "./ScoreBar";
+import ScoreRadar from "./ScoreRadar";
 
 interface Props {
   track: Track;
   rank: number;
   isPlaying: boolean;
   onPlay: (audioEl: HTMLAudioElement) => void;
+  hideScore?: boolean;
 }
 
 const LICENSE_STYLE: Record<string, string> = {
@@ -17,23 +19,39 @@ const LICENSE_STYLE: Record<string, string> = {
   "CC BY-NC": "bg-orange-100 text-orange-700",
 };
 
-export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
+function fmtTime(t: number): string {
+  if (!isFinite(t) || t < 0) return "0:00";
+  const m = Math.floor(t / 60);
+  const s = Math.floor(t % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = false }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [showScores, setShowScores] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
+  const [time, setTime] = useState(0);
+  const [dur, setDur] = useState(0);
 
+  const playable = track.audio_available !== false;
   // 크리에이터 다운로드 허용 = 수익화 + 편집 모두 가능 (AGENTS.md §5.5 creator)
   const creatorSafe = track.commercial_ok === true && track.derivative_ok === true;
+  const licenseStyle = LICENSE_STYLE[track.license_type] ?? "bg-stone-100 text-stone-600";
 
   const handlePlayClick = () => {
     const el = audioRef.current;
-    if (!el) return;
-    // 재생 버튼 클릭은 그 자체가 사용자 제스처 → 별도 unlock 없이 바로 토글.
-    // (play→pause 후 즉시 play()를 또 부르면 deferred pause가 재생을 죽이는 경쟁 상태 발생)
-    onPlay(el);
+    if (el) onPlay(el);
   };
 
-  const licenseStyle = LICENSE_STYLE[track.license_type] ?? "bg-stone-100 text-stone-600";
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value);
+    const el = audioRef.current;
+    if (el) {
+      el.currentTime = v;
+      setTime(v);
+    }
+  };
 
   return (
     <div
@@ -60,25 +78,31 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
             {track.sub_genre && track.sub_genre !== track.genre && (
               <span className="badge">{track.sub_genre}</span>
             )}
+            {track.asset_kind === "sample_loop" && (
+              <span className="badge bg-violet-50 text-violet-600">편집 루프</span>
+            )}
             <span className={`badge-license ${licenseStyle}`}>{track.license_type}</span>
-            {track.commercial_ok === true && (
-              <span className="badge-license bg-emerald-50 text-emerald-700">수익화 가능</span>
+            {/* 3-state 라이선스 배지 (AGENTS.md §8) */}
+            {track.commercial_ok === true ? (
+              <span className="badge-license bg-emerald-50 text-emerald-700">수익화 OK</span>
+            ) : (
+              <span className="badge-license bg-red-50 text-red-500">수익화 불가</span>
             )}
-            {track.commercial_ok === false && (
-              <span className="badge-license bg-red-50 text-red-500">비상업</span>
+            {track.derivative_ok === true ? (
+              <span className="badge-license bg-sky-50 text-sky-700">편집 OK</span>
+            ) : (
+              <span className="badge-license bg-orange-50 text-orange-500">편집 불가</span>
             )}
-            {track.derivative_ok === true && (
-              <span className="badge-license bg-sky-50 text-sky-700">편곡 허용</span>
-            )}
+            <span className="badge-license bg-stone-100 text-stone-500">출처표시 필수</span>
           </div>
         </div>
         {/* 매칭 점수 */}
-        <div className="shrink-0 text-right">
-          <div className="text-lg font-bold text-jade">
-            {Math.round(track.score * 100)}
+        {!hideScore && (
+          <div className="shrink-0 text-right">
+            <div className="text-lg font-bold text-jade">{Math.round(track.score * 100)}</div>
+            <div className="text-xs text-stone-400">점</div>
           </div>
-          <div className="text-xs text-stone-400">점</div>
-        </div>
+        )}
       </div>
 
       {/* 악기 / 분위기 */}
@@ -91,13 +115,28 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
         ))}
       </div>
 
-      {/* 점수 세부 */}
-      <div className="mt-3 space-y-1">
-        <ScoreBar label="지역" value={track.score_detail.region} color="bg-sky-400" />
-        <ScoreBar label="유형" value={track.score_detail.type} color="bg-violet-400" />
-        <ScoreBar label="의미" value={track.score_detail.semantic} color="bg-jade" />
-        <ScoreBar label="태그" value={track.score_detail.tag} color="bg-gold" />
-      </div>
+      {/* 점수 세부: 레이더 차트(AI 가시화) + 보조 ScoreBar (AGENTS.md §8) */}
+      {!hideScore && (
+        <div className="mt-3">
+          <button
+            className="text-xs text-jade underline underline-offset-2 hover:text-jade/70"
+            onClick={() => setShowScores((v) => !v)}
+          >
+            {showScores ? "점수 차트 숨기기" : "📊 매칭 점수 보기"}
+          </button>
+          {showScores && (
+            <>
+              <ScoreRadar scores={track.score_detail} />
+              <div className="mt-2 space-y-1 sm:hidden">
+                <ScoreBar label="지역" value={track.score_detail.region} color="bg-sky-400" />
+                <ScoreBar label="유형" value={track.score_detail.type} color="bg-violet-400" />
+                <ScoreBar label="의미" value={track.score_detail.semantic} color="bg-jade" />
+                <ScoreBar label="태그" value={track.score_detail.tag} color="bg-gold" />
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* AI 매칭 근거 */}
       <div className="mt-3">
@@ -119,19 +158,50 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
         출처: {track.source} · {track.license_note}
       </div>
 
+      {/* 시크바 (재생 위치 조절) — 재생 가능한 곡만 */}
+      {playable && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-xs text-stone-400 tabular-nums w-9 text-right">{fmtTime(time)}</span>
+          <input
+            type="range"
+            min={0}
+            max={dur || 0}
+            step={0.1}
+            value={time}
+            onChange={handleSeek}
+            className="flex-1 h-1.5 accent-persimmon cursor-pointer"
+            aria-label="재생 위치"
+          />
+          <span className="text-xs text-stone-400 tabular-nums w-9">{fmtTime(dur)}</span>
+        </div>
+      )}
+
       {/* 오디오 플레이어 */}
       <div className="mt-3 flex items-center gap-3">
-        <audio ref={audioRef} src={track.audio_path} preload="none" />
-        <button
-          className={`btn-primary text-xs px-4 py-1.5 ${
-            isPlaying
-              ? "bg-persimmon hover:bg-persimmon/80"
-              : ""
-          }`}
-          onClick={handlePlayClick}
-        >
-          {isPlaying ? "⏸ 일시정지" : "▶ 재생"}
-        </button>
+        <audio
+          ref={audioRef}
+          src={track.audio_path}
+          preload="metadata"
+          onLoadedMetadata={(e) => setDur(e.currentTarget.duration)}
+          onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        />
+        {playable ? (
+          <button
+            className={`btn-primary text-xs px-4 py-1.5 ${
+              isPlaying ? "bg-persimmon hover:bg-persimmon/80" : ""
+            }`}
+            onClick={handlePlayClick}
+          >
+            {isPlaying ? "⏸ 일시정지" : "▶ 재생"}
+          </button>
+        ) : (
+          <span
+            className="text-xs px-4 py-1.5 rounded-lg border border-stone-200 text-stone-300 cursor-not-allowed select-none"
+            title="이 곡은 카탈로그에 있으나 미리듣기 음원이 아직 준비되지 않았습니다"
+          >
+            ▶ 미리듣기 준비중
+          </span>
+        )}
 
         {/* 크리에이터 다운로드: 수익화+편집 가능 음원만 */}
         {creatorSafe ? (
@@ -151,9 +221,7 @@ export default function TrackCard({ track, rank, isPlaying, onPlay }: Props) {
           </span>
         )}
 
-        <span className="text-xs text-stone-400 ml-auto">
-          {track.region} 권역
-        </span>
+        <span className="text-xs text-stone-400 ml-auto">{track.region} 권역</span>
       </div>
 
       {showDownload && (

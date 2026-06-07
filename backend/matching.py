@@ -7,7 +7,14 @@ from __future__ import annotations
 from typing import Any
 
 from embeddings import cosine_similarity
-from rules import DEFAULT_MUSIC_REGION, REGION_MAP, TYPE_GENRE_WEIGHTS
+from rules import (
+    DEFAULT_MUSIC_REGION,
+    GENRE_TYPE_BASELINE,
+    REGION_MAP,
+    TYPE_GENRE_WEIGHTS,
+    WILDCARD_REGION_SCORE,
+    WILDCARD_REGIONS,
+)
 
 # ── 가중치 (튜닝 가능) ─────────────────────────────────
 W_REGION = 0.30
@@ -24,17 +31,30 @@ def _resolve_music_region(region_text: str) -> str:
     return DEFAULT_MUSIC_REGION
 
 
-def _region_score(place_music_region: str, track_region: str) -> float:
-    """같은 음악 권역이면 1.0, 아니면 0.0."""
+def _region_score(
+    place_music_region: str,
+    track_region: str,
+    affinity: set[str] | None = None,
+) -> float:
+    """같은 음악 권역이면 1.0. 전국(권역 비특정) 트랙은 중립 부분점수, 그 외 불일치는 0.0.
+
+    affinity: 토리 형제로 동치 취급할 track.region 집합(권역 클릭 경로). 영남처럼
+    전용 음원이 없는 권역이 메나리토리 형제(강원) 음원을 권역 일치로 받게 한다.
+    """
+    if track_region in WILDCARD_REGIONS:
+        return WILDCARD_REGION_SCORE
+    if affinity and track_region in affinity:
+        return 1.0
     return 1.0 if place_music_region == track_region else 0.0
 
 
 def _type_score(place_type: str, track_genre: str, track_sub_genre: str) -> float:
-    """장소 유형 규칙표 기반 장르 적합도."""
+    """장소 유형 규칙표 기반 장르 적합도. 범용 장르(국악 BGM 등)는 baseline floor 적용."""
     weights = TYPE_GENRE_WEIGHTS.get(place_type, {})
     g1 = weights.get(track_genre, 0.0)
     g2 = weights.get(track_sub_genre, 0.0)
-    return min(1.0, max(g1, g2))
+    baseline = GENRE_TYPE_BASELINE.get(track_genre, 0.0)
+    return min(1.0, max(g1, g2, baseline))
 
 
 def _tag_score(cultural_keywords: list[str], track_instruments: list[str], track_mood: list[str]) -> float:
@@ -71,8 +91,9 @@ def match(
     place_region = place.get("music_region", "")
     place_embedding = place.get("embedding", [])
     place_type = place.get("type", "")
+    affinity = set(place.get("region_affinity") or [])  # 권역 클릭 경로에서만 채워짐
     for track in tracks:
-        r = _region_score(place_region, track.get("region", ""))
+        r = _region_score(place_region, track.get("region", ""), affinity)
         t = _type_score(place_type, track.get("genre", ""), track.get("sub_genre", ""))
         s = cosine_similarity(place_embedding, track.get("embedding", []))
         # 유사도 범위를 [0, 1]로 정규화 (원래 [-1, 1])
@@ -98,3 +119,26 @@ def match(
     # 1차: 최종 점수 내림차순, 동점이면 의미 유사도 내림차순 (AGENTS.md §6)
     results.sort(key=lambda x: (x["score"], x["score_detail"]["semantic"]), reverse=True)
     return results
+
+
+def select_diverse(
+    ranked: list[dict[str, Any]],
+    top_n: int,
+    *,
+    reserved_genre: str,
+    reserved_count: int,
+) -> list[dict[str, Any]]:
+    """상위 top_n 결과에 특정 장르(reserved_genre, 예: 국악 BGM)를 최소 reserved_count 개 보장한다.
+
+    장소 매칭은 전통 음원(민요·정악)이 지역·유형 점수로 상위를 독점하기 쉬운데,
+    크리에이터가 원하는 트렌디한 BGM 도 추천에 함께 노출되도록 슬롯을 예약한다.
+    점수 모델 자체는 건드리지 않고(=근거·레이더 그대로) 상위 구성만 다양화한다.
+    """
+    if reserved_count <= 0 or top_n <= 0:
+        return ranked[:top_n]
+    reserved = [t for t in ranked if t.get("genre") == reserved_genre]
+    others = [t for t in ranked if t.get("genre") != reserved_genre]
+    n_res = min(reserved_count, len(reserved), top_n)
+    chosen = others[: top_n - n_res] + reserved[:n_res]
+    chosen.sort(key=lambda x: (x["score"], x["score_detail"]["semantic"]), reverse=True)
+    return chosen

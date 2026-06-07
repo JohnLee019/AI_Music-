@@ -57,9 +57,19 @@ def track_recipe(track: dict[str, Any]) -> str:
     )
 
 
+def region_recipe(profile: dict[str, Any]) -> str:
+    """음악 권역 프로필(regions.py)을 임베딩 텍스트로 만든다."""
+    kws = ",".join(profile.get("keywords", []))
+    return (
+        f"{profile.get('label','')} 권역 {profile.get('tori','')}. "
+        f"{profile.get('description','')} 키워드: {kws}"
+    )
+
+
 EMBED_TEXT_RECIPE = (
     "place: '{name}. {description} 키워드: {cultural_keywords}' / "
-    "track: '{title}. {genre}. 악기: {instruments}. 분위기: {mood}. {description}'"
+    "track: '{title}. {genre}. 악기: {instruments}. 분위기: {mood}. {description}' / "
+    "region: '{label} 권역 {tori}. {description} 키워드: {keywords}'"
 )
 
 
@@ -122,14 +132,17 @@ def embed_corpus(texts: list[str]) -> tuple[list[list[float]], str, int]:
     key = _hf_key()
     if key:
         try:
-            vecs = embed_remote(texts, key)
-            dim = len(vecs[0]) if vecs else HF_DIM
-            print(f"[embeddings] HF Inference 사용 — {len(texts)}건, {dim}차원")
-            return vecs, HF_MODEL, dim
+            vecs = embed_remote(texts, key)  # HF 호출 실패만 폴백 트리거 (else 의 후처리는 제외)
         except Exception as exc:  # noqa: BLE001
-            print(f"[embeddings] HF 실패 → 키워드 폴백으로 전환: {type(exc).__name__}: {exc}")
+            # ASCII 메시지만 사용: 리다이렉트된 stdout(cp949)에서 em-dash 등이 인코딩 에러를
+            # 일으켜 '성공한 임베딩'이 폴백으로 오인되던 버그 방지.
+            print(f"[embeddings] HF call failed -> keyword fallback: {type(exc).__name__}: {exc}")
+        else:
+            dim = len(vecs[0]) if vecs else HF_DIM
+            print(f"[embeddings] HF Inference used: {len(texts)} texts, {dim} dims")
+            return vecs, HF_MODEL, dim
     else:
-        print("[embeddings] HF_API_KEY 없음 → 키워드 폴백 사용")
+        print("[embeddings] HF_API_KEY missing -> keyword fallback")
 
     vecs = [embed_keyword(t) for t in texts]
     return vecs, KEYWORD_MODEL, len(KEYWORD_DIMS)
@@ -142,7 +155,7 @@ def embed_query(text: str) -> list[float]:
         try:
             return embed_remote([text], key)[0]
         except Exception as exc:  # noqa: BLE001
-            print(f"[embeddings] 런타임 HF 실패 → 키워드 폴백: {exc}")
+            print(f"[embeddings] runtime HF failed -> keyword fallback: {exc}")
     return embed_keyword(text)
 
 
@@ -184,14 +197,37 @@ def load_tracks() -> list[dict[str, Any]]:
     return records
 
 
+def load_regions() -> list[dict[str, Any]]:
+    """사전 계산된 권역 프로필(임베딩 포함)을 로드. 없으면 빈 리스트.
+
+    regions.json 이 없으면 main.py 가 regions.py 정적 메타 + 런타임 embed_query
+    로 폴백하므로 데모는 멈추지 않는다 (AGENTS.md §2)."""
+    try:
+        records, _ = _load_payload("regions.json", "regions")
+        return records
+    except FileNotFoundError:
+        return []
+
+
 def assert_embedding_consistency() -> None:
-    """places·tracks 임베딩 차원이 같은지 검증 (AGENTS.md §3 일관성 가드)."""
+    """places·tracks·regions 임베딩 차원이 같은지 검증 (AGENTS.md §3 일관성 가드)."""
     _, pmeta = _load_payload("places.json", "places")
     _, tmeta = _load_payload("tracks.json", "tracks")
     pdim, tdim = pmeta.get("embedding_dim"), tmeta.get("embedding_dim")
     if pdim is not None and tdim is not None and pdim != tdim:
         raise AssertionError(
             f"임베딩 차원 불일치: places={pdim}, tracks={tdim}. "
+            "generate_data.py를 한 번에 재실행해 코퍼스를 동기화하세요."
+        )
+    # regions.json 은 선택적 — 존재할 때만 차원 일치 검증.
+    try:
+        _, rmeta = _load_payload("regions.json", "regions")
+    except FileNotFoundError:
+        return
+    rdim = rmeta.get("embedding_dim")
+    if rdim is not None and pdim is not None and rdim != pdim:
+        raise AssertionError(
+            f"임베딩 차원 불일치: places={pdim}, regions={rdim}. "
             "generate_data.py를 한 번에 재실행해 코퍼스를 동기화하세요."
         )
 

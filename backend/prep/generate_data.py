@@ -21,6 +21,10 @@ import os
 import re
 import sys
 
+# Windows에서 stdout 리다이렉트 시 기본 cp949 → 한글/특수문자 인코딩 에러 방지.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 # embeddings 모듈을 import 하기 위해 backend 디렉터리를 경로에 추가
 _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _BACKEND_DIR not in sys.path:
@@ -32,8 +36,10 @@ from embeddings import (  # noqa: E402
     EMBED_TEXT_RECIPE,
     embed_corpus,
     place_recipe,
+    region_recipe,
     track_recipe,
 )
+from regions import REGION_PROFILES, region_keywords_for_music_region  # noqa: E402
 
 load_dotenv()
 
@@ -56,6 +62,8 @@ PLACES_RAW = [
         "lng": 126.9770,
         "description": "조선 왕조의 정궁으로 왕실 의례와 궁중 문화의 중심지. 장엄하고 정제된 왕실 문화를 상징한다.",
         "cultural_keywords": ["왕실", "궁중", "의례", "정제", "장엄", "정악", "궁중음악"],
+        "image_url": "https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg",
+        "image_copyright": "Type1",
     },
     {
         "id": "hahoe",
@@ -67,6 +75,8 @@ PLACES_RAW = [
         "lng": 128.5189,
         "description": "유네스코 세계문화유산으로 지정된 조선시대 씨족마을. 하회별신굿탈놀이 등 민속 문화가 살아있다.",
         "cultural_keywords": ["민속", "마을", "공동체", "활기", "탈놀이", "농악", "영남"],
+        "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/3506417_image2_1.jpg",
+        "image_copyright": "Type3",
     },
     {
         "id": "jeonju_hanok",
@@ -78,6 +88,8 @@ PLACES_RAW = [
         "lng": 127.1527,
         "description": "700여 채 한옥이 모인 국내 최대 한옥 군락지. 판소리·전통 음식·전통 공예가 살아숨쉬는 전통문화 중심지.",
         "cultural_keywords": ["전통", "민속", "판소리", "호남", "공동체", "민요", "문화유산"],
+        "image_url": "http://tong.visitkorea.or.kr/cms/resource/35/3506735_image2_1.jpg",
+        "image_copyright": "Type1",
     },
     {
         "id": "namdaemun",
@@ -89,6 +101,8 @@ PLACES_RAW = [
         "lng": 126.9768,
         "description": "조선시대부터 이어온 서울 최대 전통 재래시장. 상인들의 활기찬 에너지와 민중 문화가 공존하는 생동감 넘치는 공간.",
         "cultural_keywords": ["민속", "활기", "공동체", "시장", "경기", "민요", "농악"],
+        "image_url": "http://tong.visitkorea.or.kr/cms/resource/65/3336365_image2_1.jpg",
+        "image_copyright": "Type3",
     },
 ]
 
@@ -106,14 +120,10 @@ REGION_RULE: dict[str, dict[str, object]] = {
     "제주도": {"en": "jeju",     "music_region": "제주", "mood": ["서정적", "향토적", "애상적"]},
 }
 
-# 권역별 선별 곡 수 (히어로 장소 커버리지 우선: 경기·남도 가중). 총합 ≈ 24.
-REGION_PICK: dict[str, int] = {
-    "경기도": 8,
-    "남도": 8,
-    "강원도": 2,
-    "제주도": 4,
-    "서도": 2,
-}
+# 권역별 수집 상한. 권역을 명시하면 그 수만큼만, **비워두면(또는 권역 생략) 전체 사용.**
+# 현재: 빈 dict → CSV 105곡 전부 사용 (경기42·남도30·서도27·제주4·강원2, 모두 REGION_RULE 존재).
+# 같은 공공누리 제1유형·같은 download_audio 파이프라인이라 새 코드 없이 81곡 즉시 추가.
+REGION_PICK: dict[str, int] = {}  # 전체 105곡 사용 (상한 없음)
 
 # 연주자 필드에서 추출할 악기 토큰 (괄호 안 표기 기준).
 _KNOWN_INSTRUMENTS = ["장구", "피리", "대금", "아쟁", "가야금", "해금", "거문고", "북", "징", "꽹과리"]
@@ -152,23 +162,25 @@ def load_csv_tracks() -> list[dict]:
     with io.open(csv_path, encoding="euc-kr") as f:
         rows = list(csv.DictReader(f))
 
-    picked_count: dict[str, int] = {r: 0 for r in REGION_PICK}
+    picked_count: dict[str, int] = {}
     tracks: list[dict] = []
     for row in rows:
         code = _row_get(row, 0)          # 음원코드, e.g. "경기도-01"
         title = _row_get(row, 1)         # 자료명
         performers = _row_get(row, 3)    # 저자_연주자
         year = _row_get(row, 4)          # 제작년도
+        csv_genre = _row_get(row, 5)     # 장르 (예: 통속민요/토속민요) — 임베딩 키워드 보강
         keywords = _row_get(row, 6)      # 키워드
         audio_url = _row_get(row, 7)     # 홈페이지 주소(URL) = wav 직링크
 
         region_name = code.rsplit("-", 1)[0]
         rule = REGION_RULE.get(region_name)
-        if rule is None or region_name not in REGION_PICK:
+        if rule is None:  # REGION_RULE 에 없는 권역만 제외
             continue
-        if picked_count[region_name] >= REGION_PICK[region_name]:
+        cap = REGION_PICK.get(region_name)  # None 이면 무제한 (전체 사용)
+        if cap is not None and picked_count.get(region_name, 0) >= cap:
             continue
-        picked_count[region_name] += 1
+        picked_count[region_name] = picked_count.get(region_name, 0) + 1
 
         num = code.rsplit("-", 1)[1] if "-" in code else str(picked_count[region_name])
         tid = f"{rule['en']}_{num}"
@@ -190,8 +202,8 @@ def load_csv_tracks() -> list[dict]:
             "instruments": instruments,
             "mood": list(rule["mood"]),
             "description": description,
-            "keywords": keywords,
-            "audio_path": f"/audio/igbf_{tid}.wav",
+            "keywords": f"{csv_genre},{keywords}" if csv_genre else keywords,
+            "audio_path": f"/audio/igbf_{tid}.mp3",  # 소스는 wav, download_audio 가 mp3 로 변환
             "audio_source_url": audio_url,
             "asset_kind": "full_track",
             "source": "국악방송",
@@ -300,6 +312,122 @@ def load_court_tracks() -> list[dict]:
     return tracks
 
 
+# ─────────────────────────────────────────────
+# 공유마당 추가 풀 (gongu_sound.json 5,423건) 자동 선별 — AGENTS.md §5.2, §5.5
+#   라이선스 필터: creator_safe(=CC BY/CC0/공공누리1) + audio_url 보유 (사전계산 필드 사용).
+#   관련성 필터: title 접두 시리즈로 한정해 효과음·비국악 잡음 배제 (정밀도 우선).
+#   COURT_PICKS(수기 정악 8곡)와 source_id 로 중복 제거.
+# 오디오는 '실제 노출하는 것만' 받는다는 선을 지키려 시리즈별 상한(cap)을 둔다(§2 시연 안정성).
+# ─────────────────────────────────────────────
+_BGM_DEFAULT_MOOD = ["국악", "전통"]
+_JEONGAK_DEFAULT_MOOD = ["정제됨", "고요함", "우아함"]
+# 변형/비완성본 배제 (피아노 편곡·노래방 MR 등).
+_GONGU_VARIANT_EXCLUDE = ["피아노", "ver", "Ver", "VER", "노래방", "MR"]
+
+# 시리즈 설정: (title 접두, genre, sub_genre, region, 상한, tags를 mood로 사용?, 기본 악기, 기본 mood)
+GONGU_SERIES: list[dict] = [
+    {"prefixes": ("국악 BGM", "국악 배경음"), "genre": "국악 BGM", "sub": "전통 배경음악",
+     "region": "전국", "cap": 40, "mood_from_tags": True,
+     "instruments": ["국악 합주"], "mood": _BGM_DEFAULT_MOOD},
+    {"prefixes": ("국악연주곡",), "genre": "정악", "sub": "국악연주곡",
+     "region": "경기", "cap": 30, "mood_from_tags": False,
+     "instruments": _JEONGAK_ENSEMBLE, "mood": _JEONGAK_DEFAULT_MOOD},
+]
+
+
+# tags 는 공백 구분 문자열("고독한 차분한 분위기 브금"). 의미 없는 필러는 제거.
+_GONGU_TAG_STOPWORDS = {"분위기", "브금", "음악", "국악", "BGM", "배경음", "배경", "느낌", "곡", "사운드"}
+
+
+def _gongu_tag_tokens(tags) -> list[str]:
+    """tags(문자열 또는 리스트) → 토큰 리스트로 정규화."""
+    if isinstance(tags, str):
+        return tags.split()
+    return [str(t) for t in (tags or [])]
+
+
+def _gongu_mood_from_tags(tags, fallback: list[str]) -> list[str]:
+    """tags(분위기 서술어: 고독한·평화로운…)에서 mood 토큰 추출. 필러 제외, 없으면 fallback."""
+    out: list[str] = []
+    for t in _gongu_tag_tokens(tags):
+        t = t.strip()
+        if t and t not in _GONGU_TAG_STOPWORDS and t not in out:
+            out.append(t)
+        if len(out) >= 3:
+            break
+    return out or list(fallback)
+
+
+def _gongu_instruments(text: str, fallback: list[str]) -> list[str]:
+    """title/tags 텍스트에서 알려진 악기 토큰 추출. 없으면 fallback(시리즈 기본 편성)."""
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for ins in _JEONGAK_ENSEMBLE + _KNOWN_INSTRUMENTS:
+        if ins in text and ins not in seen:
+            seen.add(ins)
+            ordered.append(ins)
+    return ordered or list(fallback)
+
+
+def load_gongu_extra_tracks(exclude_ids: set[str]) -> list[dict]:
+    """gongu_sound.json 에서 creator-safe 국악 BGM/연주곡을 시리즈별 상한으로 보강한다."""
+    if not os.path.exists(_GONGU_JSON):
+        return []
+    with open(_GONGU_JSON, encoding="utf-8") as f:
+        pool = json.load(f)
+
+    seen: set[str] = set(exclude_ids)
+    tracks: list[dict] = []
+    for series in GONGU_SERIES:
+        count = 0
+        for x in pool:
+            if count >= series["cap"]:
+                break
+            # 1) 라이선스 자동 필터 (§5.5): creator_safe + 재생 가능본만
+            if not x.get("creator_safe") or not x.get("audio_url"):
+                continue
+            # 2) 관련성 필터: 시리즈 접두 + 변형본 제외
+            title = (x.get("title") or "").strip()
+            if not title.startswith(series["prefixes"]):
+                continue
+            if any(e in title for e in _GONGU_VARIANT_EXCLUDE):
+                continue
+            sid = str(x.get("source_id") or "")
+            if not sid or sid in seen:
+                continue
+            seen.add(sid)
+            count += 1
+
+            tags = x.get("tags") or ""
+            mood = (_gongu_mood_from_tags(tags, series["mood"])
+                    if series["mood_from_tags"] else list(series["mood"]))
+            blob = f"{title} {' '.join(_gongu_tag_tokens(tags))}"
+            instruments = _gongu_instruments(blob, series["instruments"])
+            license_type = _CCL_NORMALIZE.get(x.get("license_type", ""), "CC BY")
+            author = x.get("author") or "저작자 미상"
+            tracks.append({
+                "id": f"gongu_{sid}",
+                "title": title,
+                "genre": series["genre"],
+                "sub_genre": series["sub"],
+                "region": series["region"],            # '전국'/'경기' — 권역 매칭은 약하게, 의미·분위기 위주
+                "instruments": instruments,
+                "mood": mood,
+                "description": f"공유마당 자유이용 국악 음원 «{title}». 분위기: {', '.join(mood)}.",
+                "keywords": f"국악,{series['genre']}," + ",".join(mood),
+                "audio_path": f"/audio/gongu_{sid}.mp3",
+                "audio_source_url": x.get("audio_url"),
+                "asset_kind": "full_track",
+                "source": "공유마당",
+                "source_url": x.get("source_url", "https://gongu.copyright.or.kr"),
+                "license_type": license_type,
+                "license_note": "공유마당 공유저작물 (자동 선별)",
+                "is_derivative_allowed": bool(x.get("derivative_ok", True)),
+                "attribution_text": f"«{title}» / {author} / {license_type} (출처: 공유마당)",
+            })
+    return tracks
+
+
 def _write_payload(filename: str, list_key: str, records: list[dict],
                    model: str, dim: int) -> None:
     payload = {
@@ -313,24 +441,90 @@ def _write_payload(filename: str, list_key: str, records: list[dict],
     print(f"{filename} 저장: {len(records)}건 ({model}, {dim}차원)")
 
 
+def _load_tourapi_places() -> list[dict]:
+    """collect_places.py 가 생성한 data/raw/tourapi_places.json 을 읽는다.
+    파일이 없으면 빈 리스트 반환 (선택적 — AGENTS.md §5.1 Phase 3.5)."""
+    path = os.path.join(_DATA_DIR, "raw", "tourapi_places.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    # music_region 이 None 인 경우 DEFAULT_MUSIC_REGION 으로 채움
+    from rules import DEFAULT_MUSIC_REGION, REGION_MAP
+    for p in data:
+        if not p.get("music_region"):
+            # addr1 기반 재시도 후 기본값
+            region_text = p.get("region", "")
+            p["music_region"] = next(
+                (v for k, v in REGION_MAP.items() if k in region_text),
+                DEFAULT_MUSIC_REGION,
+            )
+    return data
+
+
+def load_gugak_samples() -> list[dict]:
+    """collect_gugak_samples.py 가 만든 data/raw/gugak_samples.json (sample_loop) 을 읽는다.
+    파일 없으면 빈 리스트 (선택적 — AGENTS.md §5.2 ③)."""
+    path = os.path.join(_DATA_DIR, "raw", "gugak_samples.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        samples = json.load(f)
+    # 소스는 wav 이지만 download_audio 가 mp3 로 변환하므로 audio_path 를 .mp3 로 정규화.
+    for s in samples:
+        if s.get("audio_path", "").endswith(".wav"):
+            s["audio_path"] = s["audio_path"][:-4] + ".mp3"
+    return samples
+
+
 def build_json() -> None:
     os.makedirs(_DATA_DIR, exist_ok=True)
 
-    places = [dict(p) for p in PLACES_RAW]
-    tracks = load_court_tracks() + load_csv_tracks()  # 정악(궁중) + 전국8도민요
+    # 히어로 4곳 + TourAPI 수집 장소 병합 (중복 id 제거, 히어로 우선)
+    tourapi_places = _load_tourapi_places()
+    hero_ids = {p["id"] for p in PLACES_RAW}
+    extra = [p for p in tourapi_places if p["id"] not in hero_ids]
+    if extra:
+        print(f"TourAPI 장소 {len(extra)}곳 추가 병합")
+    places = [dict(p) for p in PLACES_RAW] + extra
 
-    # 한 번에 임베딩해 places·tracks 가 동일 모드/차원을 쓰도록 보장한다.
-    place_texts = [place_recipe(p) for p in places]
+    # 트랙 풀: 정악(수기 큐레이션) + 전국8도민요(전체 105) + 공유마당 자동 보강(BGM/정악)
+    court = load_court_tracks()
+    folk = load_csv_tracks()
+    court_sids = {t["id"][len("gongu_"):] for t in court}  # 공유마당 중복(source_id) 방지
+    gongu_extra = load_gongu_extra_tracks(court_sids)
+    samples = load_gugak_samples()  # 국립국악원 sample_loop (있으면)
+    # id 중복 제거 (sample 이 기존 트랙과 겹치지 않도록)
+    existing_ids = {t["id"] for t in court + folk + gongu_extra}
+    samples = [s for s in samples if s["id"] not in existing_ids]
+    tracks = court + folk + gongu_extra + samples
+    print(f"트랙 구성: 정악(수기) {len(court)} + 민요 {len(folk)} "
+          f"+ 공유마당 보강 {len(gongu_extra)} + 국립국악원 샘플 {len(samples)} = {len(tracks)}곡")
+
+    # 권역 프로필(regions.py) — 지도 색상 + 권역 클릭 추천의 의미 기준.
+    regions = [dict(r) for r in REGION_PROFILES]
+
+    # 한 번에 임베딩해 places·tracks·regions 가 동일 모드/차원을 쓰도록 보장한다.
+    # place 임베딩은 소속 권역의 음악 특징 키워드로 강화한다(저장 필드는 불변, 입력만 강화).
+    place_texts = [
+        place_recipe(p) + " " + " ".join(region_keywords_for_music_region(p.get("music_region", "")))
+        for p in places
+    ]
     track_texts = [track_recipe(t) for t in tracks]
-    all_vecs, model, dim = embed_corpus(place_texts + track_texts)
+    region_texts = [region_recipe(r) for r in regions]
+    all_vecs, model, dim = embed_corpus(place_texts + track_texts + region_texts)
 
-    for p, vec in zip(places, all_vecs[:len(places)]):
+    n_p, n_t = len(places), len(tracks)
+    for p, vec in zip(places, all_vecs[:n_p]):
         p["embedding"] = vec
-    for t, vec in zip(tracks, all_vecs[len(places):]):
+    for t, vec in zip(tracks, all_vecs[n_p:n_p + n_t]):
         t["embedding"] = vec
+    for r, vec in zip(regions, all_vecs[n_p + n_t:]):
+        r["embedding"] = vec
 
     _write_payload("places.json", "places", places, model, dim)
     _write_payload("tracks.json", "tracks", tracks, model, dim)
+    _write_payload("regions.json", "regions", regions, model, dim)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,9 @@ import { useState } from "react";
 interface Props {
   onSearch: (text: string) => void;
   loading: boolean;
+  // 활성 권역명(설정 시 검색이 그 권역 안으로 한정됨). null이면 전체 검색.
+  scopeLabel?: string | null;
+  onClearScope?: () => void;
 }
 
 const EXAMPLES = [
@@ -12,7 +15,7 @@ const EXAMPLES = [
   "애절한 남도 정서의 슬픈 노래",
 ];
 
-export default function SynopsisSearch({ onSearch, loading }: Props) {
+export default function SynopsisSearch({ onSearch, loading, scopeLabel, onClearScope }: Props) {
   const [text, setText] = useState("");
 
   const submit = () => {
@@ -31,6 +34,24 @@ export default function SynopsisSearch({ onSearch, loading }: Props) {
       <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
         시놉시스·무드로 찾기
       </h2>
+
+      {/* 권역 한정 표시 — 소리 지도에서 권역을 고르면 그 안에서만 검색 */}
+      {scopeLabel && (
+        <div className="mb-2 flex items-center gap-2 text-xs">
+          <span className="inline-flex items-center gap-1 rounded-full bg-jade/10 text-jade px-2.5 py-1 font-medium">
+            📍 {scopeLabel} 권역 안에서 검색
+          </span>
+          {onClearScope && (
+            <button
+              onClick={onClearScope}
+              disabled={loading}
+              className="text-stone-400 underline underline-offset-2 hover:text-stone-600 disabled:opacity-50"
+            >
+              전체에서 찾기
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="card">
         <textarea
@@ -72,7 +93,9 @@ export default function SynopsisSearch({ onSearch, loading }: Props) {
         </div>
 
         <p className="mt-2 text-xs text-stone-400">
-          AI가 입력 텍스트의 의미를 임베딩해 가장 가까운 국악을 찾습니다. (지역·유형 대신 의미 위주)
+          {scopeLabel
+            ? `AI가 ${scopeLabel} 권역 안에서 무드에 맞는 곡을 찾습니다.`
+            : "AI가 사용자가 원하는 곡을 찾습니다. (지역·유형 대신 의미 위주)"}
         </p>
       </div>
     </section>

@@ -1,10 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MatchResult, Place } from "./api";
-import { fetchMatch, fetchMatchByText, fetchPlaces } from "./api";
+import { fetchMatch, fetchMatchByRegion, fetchMatchByRegionQuery, fetchMatchByText, fetchPlaces } from "./api";
 import GenerateBGM from "./components/GenerateBGM";
 import PlaceSelector from "./components/PlaceSelector";
+import RegionSoundMap from "./components/RegionSoundMap";
 import SynopsisSearch from "./components/SynopsisSearch";
 import TrackCard from "./components/TrackCard";
+import { REGION_META } from "./data/regionGeo";
+
+const FALLBACK_IMAGE: Record<string, string> = {
+  궁궐: "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=600&q=80",
+  사찰: "https://images.unsplash.com/photo-160162161407e-12f0b9ca0448?auto=format&fit=crop&w=600&q=80",
+  한옥마을: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  민속마을: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  서원: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  전통시장: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=600&q=80",
+};
 
 export default function App() {
   const [places, setPlaces] = useState<Place[]>([]);
@@ -13,10 +24,15 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaceCollapsed, setIsPlaceCollapsed] = useState(false);
 
   // ── 트랙 필터 상태 ─────────────────────────────────
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
   const [commercialOnly, setCommercialOnly] = useState(false);
+  // 장소 탐색 방식: 목록 / 권역별 소리 지도 (§8 Phase 6)
+  const [placeView, setPlaceView] = useState<"list" | "map">("list");
+  // 소리 지도에서 선택한 권역(설정 시 시놉시스 검색이 그 권역 안으로 한정됨)
+  const [activeRegion, setActiveRegion] = useState<{ key: string; label: string } | null>(null);
 
   useEffect(() => {
     fetchPlaces()
@@ -30,26 +46,30 @@ export default function App() {
     setCommercialOnly(false);
   }, [result]);
 
-  // 결과 트랙에서 장르 목록 추출 (중복 제거, 출현 순서 유지)
+  // 필터·둘러보기 대상 목록: 권역 결과면 '이 권역의 국악 전체', 아니면 매칭 결과.
+  const browseList = useMemo(
+    () => (result ? result.region_tracks ?? result.tracks : []),
+    [result],
+  );
+
+  // 목록에서 장르 추출 (중복 제거, 출현 순서 유지)
   const availableGenres = useMemo(() => {
-    if (!result) return [];
     const seen = new Set<string>();
     const genres: string[] = [];
-    for (const t of result.tracks) {
+    for (const t of browseList) {
       if (!seen.has(t.genre)) { seen.add(t.genre); genres.push(t.genre); }
     }
     return genres;
-  }, [result]);
+  }, [browseList]);
 
   // 필터 적용
   const filteredTracks = useMemo(() => {
-    if (!result) return [];
-    return result.tracks.filter((t) => {
+    return browseList.filter((t) => {
       if (genreFilter && t.genre !== genreFilter) return false;
       if (commercialOnly && t.commercial_ok !== true) return false;
       return true;
     });
-  }, [result, genreFilter, commercialOnly]);
+  }, [browseList, genreFilter, commercialOnly]);
 
   const stopCurrentAudio = () => {
     if (playingAudio) {
@@ -62,12 +82,36 @@ export default function App() {
   const handleSelect = async (place: Place) => {
     if (loading) return;
     setSelected(place);
+    setIsPlaceCollapsed(true);
+    setActiveRegion(null);     // 개별 장소 선택 → 권역 한정 해제
     setResult(null);
     setError(null);
     setLoading(true);
     stopCurrentAudio();
+    window.scrollTo(0, 0);
     try {
       const data = await fetchMatch(place.id);
+      setResult(data);
+    } catch {
+      setError("매칭 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegionSelect = async (regionKey: string) => {
+    if (loading) return;
+    setSelected(null);
+    setIsPlaceCollapsed(false);
+    // 이후 시놉시스 검색이 이 권역 안으로 한정되도록 활성 권역 기록
+    setActiveRegion({ key: regionKey, label: REGION_META.find((r) => r.key === regionKey)?.label ?? regionKey });
+    setResult(null);
+    setError(null);
+    setLoading(true);
+    stopCurrentAudio();
+    window.scrollTo(0, 0);
+    try {
+      const data = await fetchMatchByRegion(regionKey);
       setResult(data);
     } catch {
       setError("매칭 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -79,12 +123,17 @@ export default function App() {
   const handleSearch = async (text: string) => {
     if (loading) return;
     setSelected(null);
+    setIsPlaceCollapsed(false);
     setResult(null);
     setError(null);
     setLoading(true);
     stopCurrentAudio();
+    window.scrollTo(0, 0);
     try {
-      const data = await fetchMatchByText(text);
+      // 활성 권역이 있으면 그 권역 안에서 무드 검색, 없으면 전체 의미 검색
+      const data = activeRegion
+        ? await fetchMatchByRegionQuery(activeRegion.key, text)
+        : await fetchMatchByText(text);
       setResult(data);
     } catch {
       setError("매칭 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -108,13 +157,25 @@ export default function App() {
     }
   };
 
+  // 탐색 방식(목록 ↔ 지도) 전환 시 현재 결과를 지워 빈 상태 안내로 되돌린다.
+  const handleViewChange = (v: "list" | "map") => {
+    if (v === placeView || loading) return;
+    setPlaceView(v);
+    setSelected(null);
+    setIsPlaceCollapsed(false);
+    setActiveRegion(null);
+    setResult(null);
+    setError(null);
+    stopCurrentAudio();
+  };
+
   const hasActiveFilter = genreFilter !== null || commercialOnly;
 
   return (
     <div className="min-h-screen bg-hanji">
       {/* 헤더 */}
       <header className="bg-ink text-hanji py-5 px-6 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-end gap-4">
+        <div className="max-w-[1600px] mx-auto px-6 flex items-end gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               <span className="text-gold">國樂</span>Place
@@ -130,24 +191,139 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        {/* 자유 시놉시스·무드 입력 (크리에이터 핵심 경로) */}
-        <SynopsisSearch onSearch={handleSearch} loading={loading} />
+      <main className="max-w-[1600px] mx-auto px-6 py-8">
+        <div className="lg:grid lg:grid-cols-[600px_1fr] lg:gap-10">
 
-        {/* 구분선 */}
-        <div className="flex items-center gap-3 text-xs text-stone-400">
-          <div className="flex-1 h-px bg-stone-200" />
-          또는 장소로 찾기
-          <div className="flex-1 h-px bg-stone-200" />
+        {/* ── 왼쪽: 탐색 패널 ── */}
+        <div className="min-w-0">
+          <div className="space-y-6 lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-2">
+            {/* selected가 있으면 장소 상세 정보 표시, 없으면 시놉시스 검색 표시 */}
+            {selected ? (
+              <div className="card overflow-hidden">
+                {(() => {
+                  const imageUrl = selected.image_url || FALLBACK_IMAGE[selected.type] || "https://images.unsplash.com/photo-1608976478546-d249d375369f?auto=format&fit=crop&w=600&q=80";
+                  const imageCopyright = selected.image_url ? selected.image_copyright : "Type1";
+                  return (
+                    <div className="relative -mx-5 -mt-5 mb-4 h-48 overflow-hidden rounded-t-2xl">
+                      <img
+                        src={imageUrl}
+                        alt={selected.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {imageCopyright && (
+                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm">
+                          📸 이미지: {
+                            imageCopyright === "Type1" ? "공공누리 제1유형" :
+                            imageCopyright === "Type3" ? "공공누리 제3유형" :
+                            imageCopyright === "Type2" ? "공공누리 제2유형" :
+                            imageCopyright === "Type4" ? "공공누리 제4유형" :
+                            imageCopyright
+                          }
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+                <div className="flex items-start gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-xl font-bold">{selected.name}</h2>
+                      <span className="badge">{selected.type}</span>
+                      {selected.music_region !== "-" && (
+                        <span className="badge">{selected.music_region} 권역</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-stone-600 mt-2 leading-relaxed">
+                      {selected.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {selected.cultural_keywords.map((kw) => (
+                        <span key={kw} className="badge bg-jade/10 text-jade">
+                          #{kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <SynopsisSearch
+                onSearch={handleSearch}
+                loading={loading}
+                scopeLabel={activeRegion?.label ?? null}
+                onClearScope={() => setActiveRegion(null)}
+              />
+            )}
+
+            {/* 구분선 */}
+            <div className="flex items-center gap-3 text-xs text-stone-400">
+              <div className="flex-1 h-px bg-stone-200" />
+              또는 장소로 찾기
+              <div className="flex-1 h-px bg-stone-200" />
+            </div>
+
+            {/* 목록 / 소리 지도 토글 */}
+            <div className="flex justify-center gap-1.5">
+              {([["list", "📋 목록"], ["map", "🗺️ 전국 소리 지도"]] as const).map(([v, label]) => (
+                <button
+                  key={v}
+                  onClick={() => handleViewChange(v)}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                    placeView === v
+                      ? "bg-jade text-white border-jade"
+                      : "border-stone-200 text-stone-500 hover:border-jade hover:text-jade"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* 장소 선택: 목록 또는 지도(마커 클릭 → 매칭) */}
+            {placeView === "list" ? (
+              <PlaceSelector
+                places={places}
+                selected={selected}
+                onSelect={handleSelect}
+                loading={loading}
+                collapsed={isPlaceCollapsed}
+                onExpand={() => {
+                  setIsPlaceCollapsed(false);
+                  setSelected(null);
+                  setResult(null);
+                  stopCurrentAudio();
+                }}
+              />
+            ) : (
+              <RegionSoundMap
+                places={places}
+                selected={selected}
+                onSelect={handleSelect}
+                onRegionSelect={handleRegionSelect}
+                loading={loading}
+              />
+            )}
+          </div>
         </div>
 
-        {/* 장소 선택 */}
-        <PlaceSelector
-          places={places}
-          selected={selected}
-          onSelect={handleSelect}
-          loading={loading}
-        />
+        {/* ── 오른쪽: 결과 패널 ── */}
+        <div className="mt-8 lg:mt-0 min-w-0">
+
+        {/* 빈 상태 안내 (데스크톱에서 오른쪽 여백 방지) */}
+        {!loading && !error && !result && (
+          <div className="hidden lg:block lg:sticky lg:top-8">
+            <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+              추천 국악 결과
+            </h2>
+            <div className="card text-center text-stone-400 py-12 min-h-[190px] flex flex-col justify-center items-center">
+              <div className="text-3xl mb-2">🎴</div>
+              <p className="text-sm leading-relaxed text-stone-500">
+                왼쪽에서 장소·권역을 클릭하거나 장면을 입력하면<br />
+                추천 국악이 여기에 나타납니다.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 로딩 */}
         {loading && (
@@ -167,39 +343,88 @@ export default function App() {
         {/* 결과 */}
         {result && !loading && (
           <section>
-            {/* 장소 정보 */}
-            <div className="card mb-6">
-              <div className="flex items-start gap-4 flex-wrap">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-xl font-bold">{result.place.name}</h2>
-                    <span className="badge">{result.place.type}</span>
-                    {result.place.music_region !== "-" && (
-                      <span className="badge">{result.place.music_region} 권역</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-stone-600 mt-2 leading-relaxed">
-                    {result.place.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {result.place.cultural_keywords.map((kw) => (
-                      <span key={kw} className="badge bg-jade/10 text-jade">
-                        #{kw}
-                      </span>
-                    ))}
+            <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+              추천 국악 결과
+            </h2>
+            {/* 장소 정보 (자유 텍스트 검색 결과로 매칭된 장소인 경우에만 우측에 표시) */}
+            {!selected && (
+              <div className="card mb-6 overflow-hidden">
+                {(() => {
+                  const imageUrl = result.place.image_url || FALLBACK_IMAGE[result.place.type] || "https://images.unsplash.com/photo-1608976478546-d249d375369f?auto=format&fit=crop&w=600&q=80";
+                  const imageCopyright = result.place.image_url ? result.place.image_copyright : "Type1";
+                  return (
+                    <div className="relative -mx-5 -mt-5 mb-4 h-48 overflow-hidden rounded-t-2xl">
+                      <img
+                        src={imageUrl}
+                        alt={result.place.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {imageCopyright && (
+                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm">
+                          📸 이미지: {
+                            imageCopyright === "Type1" ? "공공누리 제1유형" :
+                            imageCopyright === "Type3" ? "공공누리 제3유형" :
+                            imageCopyright === "Type2" ? "공공누리 제2유형" :
+                            imageCopyright === "Type4" ? "공공누리 제4유형" :
+                            imageCopyright
+                          }
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+                <div className="flex items-start gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-xl font-bold">{result.place.name}</h2>
+                      <span className="badge">{result.place.type}</span>
+                      {result.place.music_region !== "-" && (
+                        <span className="badge">{result.place.music_region} 권역</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-stone-600 mt-2 leading-relaxed">
+                      {result.place.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {result.place.cultural_keywords.map((kw) => (
+                        <span key={kw} className="badge bg-jade/10 text-jade">
+                          #{kw}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* 매칭 헤더 + 필터 */}
+            {/* 권역 모드: 추천(top)을 먼저 강조하고, 아래에 권역 전체 목록을 둘러보게 한다 */}
+            {result.region_tracks && result.tracks.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase mb-3">
+                  ✨ 이 권역 추천 {result.tracks.length}곡
+                </h2>
+                <div className="space-y-4">
+                  {result.tracks.map((track, i) => (
+                    <TrackCard
+                      key={`rec-${track.id}`}
+                      track={track}
+                      rank={i + 1}
+                      isPlaying={playingAudio?.src.endsWith(track.audio_path) ?? false}
+                      onPlay={handlePlay}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 매칭 헤더 + 필터 (권역: 전체 목록 / 그 외: 매칭 결과) */}
             <div className="mb-4 space-y-2">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase">
-                  AI 매칭 결과
+                  {result.region_tracks ? "이 권역의 국악 전체" : "AI 매칭 결과"}
                 </h2>
                 <span className="text-xs text-stone-400">
-                  {filteredTracks.length} / {result.tracks.length}곡
+                  {filteredTracks.length} / {browseList.length}곡
                 </span>
               </div>
 
@@ -264,6 +489,7 @@ export default function App() {
                     rank={i + 1}
                     isPlaying={playingAudio?.src.endsWith(track.audio_path) ?? false}
                     onPlay={handlePlay}
+                    hideScore={!!result.region_tracks}
                   />
                 ))}
               </div>
@@ -280,10 +506,12 @@ export default function App() {
               </div>
             )}
 
-            {/* BGM 생성 */}
-            <div className="mt-6">
-              <GenerateBGM placeId={result.place.id} />
-            </div>
+            {/* BGM 생성 — 실제 장소만(합성 권역·자유검색 place는 생성 대상 아님) */}
+            {!result.place.id.startsWith("__") && (
+              <div className="mt-6">
+                <GenerateBGM placeId={result.place.id} />
+              </div>
+            )}
 
             {/* 안내 */}
             <p className="mt-4 text-xs text-stone-400 text-center">
@@ -292,6 +520,8 @@ export default function App() {
             </p>
           </section>
         )}
+        </div>{/* /오른쪽 결과 패널 */}
+        </div>{/* /2단 그리드 */}
       </main>
     </div>
   );

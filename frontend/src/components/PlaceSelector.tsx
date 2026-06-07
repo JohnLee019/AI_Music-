@@ -7,6 +7,8 @@ interface Props {
   selected: Place | null;
   onSelect: (place: Place) => void;
   loading: boolean;
+  collapsed?: boolean;       // 장소 선택 후 목록을 접어 결과로 바로 이동
+  onExpand?: () => void;     // 다른 장소 선택을 위해 다시 펼치기
 }
 
 const TYPE_ICON: Record<string, string> = {
@@ -16,7 +18,21 @@ const TYPE_ICON: Record<string, string> = {
   전통시장: "🏪",
 };
 
-export default function PlaceSelector({ places, selected, onSelect, loading }: Props) {
+const FALLBACK_IMAGE: Record<string, string> = {
+  궁궐: "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=600&q=80",
+  사찰: "https://images.unsplash.com/photo-160162161407e-12f0b9ca0448?auto=format&fit=crop&w=600&q=80",
+  한옥마을: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  민속마을: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  서원: "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=600&q=80",
+  전통시장: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=600&q=80",
+};
+
+const getPlaceImage = (place: Place) => {
+  if (place.image_url) return place.image_url;
+  return FALLBACK_IMAGE[place.type] || "https://images.unsplash.com/photo-1608976478546-d249d375369f?auto=format&fit=crop&w=600&q=80";
+};
+
+export default function PlaceSelector({ places, selected, onSelect, loading, collapsed = false, onExpand }: Props) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
@@ -56,6 +72,30 @@ export default function PlaceSelector({ places, selected, onSelect, loading }: P
     }, 400);
     return () => clearTimeout(handle);
   }, [query, noLocalMatch]);
+
+  // 접힌 상태: 선택한 장소만 간단히 보여주고 '다른 장소 선택' 버튼 제공 (스크롤 최소화)
+  if (collapsed && selected) {
+    return (
+      <section>
+        <div className="flex items-center gap-3 card">
+          <span className="text-2xl">{TYPE_ICON[selected.type] ?? "📍"}</span>
+          <div className="min-w-0">
+            <div className="text-xs text-stone-400">선택한 장소</div>
+            <div className="font-semibold leading-tight truncate">{selected.name}</div>
+            <div className="text-xs text-stone-500">{selected.type} · {selected.region}</div>
+          </div>
+          <button
+            className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-stone-200 text-stone-600
+                       hover:border-jade hover:text-jade transition-colors disabled:opacity-50"
+            onClick={onExpand}
+            disabled={loading}
+          >
+            다른 장소 선택
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section>
@@ -125,11 +165,20 @@ export default function PlaceSelector({ places, selected, onSelect, loading }: P
                 key={place.id}
                 disabled={loading}
                 onClick={() => onSelect(place)}
-                className={`card text-left transition-all hover:-translate-y-0.5 active:scale-95
+                className={`card text-left transition-all hover:-translate-y-0.5 active:scale-95 overflow-hidden
                   ${isSelected ? "ring-2 ring-jade bg-jade/5 border-jade" : "hover:border-stone-300"}
                   ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               >
-                <div className="text-2xl mb-1">{TYPE_ICON[place.type] ?? "📍"}</div>
+                <div className="relative -mx-5 -mt-5 mb-3 h-24 overflow-hidden rounded-t-2xl bg-stone-100">
+                  <img
+                    src={getPlaceImage(place)}
+                    alt={place.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm rounded-full w-7 h-7 flex items-center justify-center text-sm shadow-sm">
+                    {TYPE_ICON[place.type] ?? "📍"}
+                  </span>
+                </div>
                 <div className="font-semibold text-base leading-tight">{place.name}</div>
                 <div className="text-xs text-stone-500 mt-0.5">{place.type}</div>
                 <div className="text-xs text-stone-400 mt-0.5 truncate">{place.region}</div>
