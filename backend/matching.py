@@ -4,6 +4,8 @@
 """
 from __future__ import annotations
 
+import hashlib
+import random
 from typing import Any
 
 from embeddings import cosine_similarity
@@ -121,24 +123,128 @@ def match(
     return results
 
 
+# 상위 노출에서 같은 (genre, sub_genre) 묶음의 최대 개수.
+# 국악 BGM(전통 배경음악)·국악 샘플(악구)처럼 메타가 거의 같아 임베딩이 뭉치는 묶음이
+# 상위를 도배해 "어느 장소나 같은 곡" 처럼 보이는 문제를 막는다.
+DIVERSITY_KEY_CAP = 2
+
+
+def _diversity_key(track: dict[str, Any]) -> tuple[str, str]:
+    return (track.get("genre", ""), track.get("sub_genre", ""))
+
+
+def _pick_capped(
+    pool: list[dict[str, Any]],
+    n: int,
+    cap: int,
+    counts: dict[tuple[str, str], int],
+) -> list[dict[str, Any]]:
+    """pool(점수순)에서 n개 선택. 같은 diversity_key 는 cap 까지만, 모자라면 완화해 채운다.
+    counts 는 호출 간 누적되도록 제자리 갱신한다."""
+    chosen: list[dict[str, Any]] = []
+    overflow: list[dict[str, Any]] = []
+    for t in pool:
+        if len(chosen) >= n:
+            break
+        k = _diversity_key(t)
+        if counts.get(k, 0) < cap:
+            chosen.append(t)
+            counts[k] = counts.get(k, 0) + 1
+        else:
+            overflow.append(t)
+    # 캡 때문에 슬롯이 남으면 점수순을 유지한 채 넘친 후보로 채운다
+    for t in overflow:
+        if len(chosen) >= n:
+            break
+        chosen.append(t)
+        counts[_diversity_key(t)] = counts.get(_diversity_key(t), 0) + 1
+    return chosen
+
+
+# 점수가 이 폭 안이면 '사실상 동률'로 보고 장소별로 회전 선택한다.
+# (국악 BGM 은 지역·유형 점수가 상수라 상위 8곡이 0.005~0.01 차의 노이즈 동률 → 특정
+#  한두 곡이 전 장소 추천을 도배. 동률 구간에서만 장소 시드로 분산해 단조로움을 깬다.)
+NEAR_TIE_EPS = 0.01
+
+
+def _seeded_pick(items: list[dict[str, Any]], n: int, seed: Any) -> list[dict[str, Any]]:
+    """동률 후보 items 중 n개를 '장소 시드'로 결정적 선택(장소마다 다르게, 재현 가능)."""
+    if n <= 0 or not items:
+        return []
+    if len(items) <= n:
+        return list(items)
+    h = int(hashlib.md5(str(seed).encode("utf-8")).hexdigest(), 16) if seed is not None else 0
+    idx = list(range(len(items)))
+    random.Random(h).shuffle(idx)
+    return [items[i] for i in idx[:n]]
+
+
+def _pick_reserved_rotating(
+    pool: list[dict[str, Any]],
+    n: int,
+    seed: Any,
+    eps: float = NEAR_TIE_EPS,
+) -> list[dict[str, Any]]:
+    """예약 장르(BGM) n개를 고른다. 최상위 점수와 eps 이내인 '동률 구간'에서는 장소 시드로
+    회전 선택해 분산하고(특정 BGM 도배 방지), 한 곡이 뚜렷이 앞서면 그 곡을 그대로 유지한다.
+    동률 구간이 n보다 작으면 다음 점수 곡으로 채운다."""
+    if n <= 0 or not pool:
+        return []
+    top = pool[0]["score"]
+    window = [t for t in pool if top - t["score"] <= eps]
+    picked = _seeded_pick(window, min(n, len(window)), seed)
+    if len(picked) < n:
+        picked_ids = {t.get("id") for t in picked}
+        for t in pool:
+            if len(picked) >= n:
+                break
+            if t.get("id") not in picked_ids:
+                picked.append(t)
+    picked.sort(key=lambda x: (x["score"], x["score_detail"]["semantic"]), reverse=True)
+    return picked
+
+
 def select_diverse(
     ranked: list[dict[str, Any]],
     top_n: int,
     *,
     reserved_genre: str,
     reserved_count: int,
+    key_cap: int = DIVERSITY_KEY_CAP,
+    seed: Any = None,
 ) -> list[dict[str, Any]]:
-    """상위 top_n 결과에 특정 장르(reserved_genre, 예: 국악 BGM)를 최소 reserved_count 개 보장한다.
+    """상위 top_n 결과를 다양화한다: (1) 특정 장르(reserved_genre, 예: 국악 BGM)를 최소
+    reserved_count 개 보장하고, (2) 같은 (genre, sub_genre) 묶음을 key_cap 개로 제한하며,
+    (3) 예약 장르의 동률 구간은 seed(장소 id)로 회전 선택해 곡별 도배를 막는다.
 
-    장소 매칭은 전통 음원(민요·정악)이 지역·유형 점수로 상위를 독점하기 쉬운데,
-    크리에이터가 원하는 트렌디한 BGM 도 추천에 함께 노출되도록 슬롯을 예약한다.
-    점수 모델 자체는 건드리지 않고(=근거·레이더 그대로) 상위 구성만 다양화한다.
+    장소 매칭은 전통 음원(민요·정악)이 지역·유형 점수로 상위를 독점하기 쉽고, 반대로
+    메타가 똑같은 전국 공용 음원(BGM·샘플)은 어디서나 같은 순위로 떠 추천이 단조로워진다.
+    점수 모델 자체는 건드리지 않고(=근거·레이더 그대로) 상위 '구성'만 다양화한다.
     """
-    if reserved_count <= 0 or top_n <= 0:
-        return ranked[:top_n]
-    reserved = [t for t in ranked if t.get("genre") == reserved_genre]
-    others = [t for t in ranked if t.get("genre") != reserved_genre]
-    n_res = min(reserved_count, len(reserved), top_n)
-    chosen = others[: top_n - n_res] + reserved[:n_res]
+    if top_n <= 0:
+        return []
+    reserved_count = max(0, min(reserved_count, top_n))
+    reserved_pool = [t for t in ranked if t.get("genre") == reserved_genre]
+    others_pool = [t for t in ranked if t.get("genre") != reserved_genre]
+
+    counts: dict[tuple[str, str], int] = {}
+    # 1) 예약 장르(BGM) 슬롯: 동률 구간은 장소 시드로 회전 선택(특정 BGM 도배 방지)
+    n_reserved = min(reserved_count, len(reserved_pool), max(0, key_cap))
+    reserved_sel = _pick_reserved_rotating(reserved_pool, n_reserved, seed)
+    for t in reserved_sel:
+        counts[_diversity_key(t)] = counts.get(_diversity_key(t), 0) + 1
+    # 2) 나머지 슬롯을 그 외 장르에서 다양성 캡 적용해 채움
+    others_sel = _pick_capped(others_pool, top_n - len(reserved_sel), key_cap, counts)
+    chosen = reserved_sel + others_sel
+
+    # 3) 캡 때문에 여전히 모자라면 남은 전체(점수순)로 보충
+    if len(chosen) < top_n:
+        chosen_ids = {t.get("id") for t in chosen}
+        for t in ranked:
+            if len(chosen) >= top_n:
+                break
+            if t.get("id") not in chosen_ids:
+                chosen.append(t)
+
     chosen.sort(key=lambda x: (x["score"], x["score_detail"]["semantic"]), reverse=True)
     return chosen

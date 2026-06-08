@@ -39,7 +39,11 @@ from embeddings import (  # noqa: E402
     region_recipe,
     track_recipe,
 )
-from regions import REGION_PROFILES, region_keywords_for_music_region  # noqa: E402
+from regions import (  # noqa: E402
+    REGION_PROFILES,
+    region_affinity_for_music_region,
+    region_keywords_for_music_region,
+)
 
 load_dotenv()
 
@@ -335,8 +339,14 @@ GONGU_SERIES: list[dict] = [
 ]
 
 
-# tags 는 공백 구분 문자열("고독한 차분한 분위기 브금"). 의미 없는 필러는 제거.
-_GONGU_TAG_STOPWORDS = {"분위기", "브금", "음악", "국악", "BGM", "배경음", "배경", "느낌", "곡", "사운드"}
+# tags 는 공백 구분 서술 문자열("고독한 차분한 분위기 브금"). 의미 없는 필러를 제거하고
+# 자연스러운 분위기 구절로 복원한다. 토큰을 콤마로 쪼개면 "여유가 넘치는" 같은 한 구절이
+# "여유가", "넘치는" 두 조각으로 깨져 임베딩·태그 신호가 망가지므로, 표시·임베딩용으로는
+# 필러만 걷어낸 공백 구절을 그대로 쓴다.
+_GONGU_TAG_FILLER = {
+    "분위기", "분위기의", "브금", "음악", "국악", "BGM", "배경음", "배경음악",
+    "배경", "느낌", "느낌의", "곡", "사운드", "조성", "스타일",
+}
 
 
 def _gongu_tag_tokens(tags) -> list[str]:
@@ -346,14 +356,25 @@ def _gongu_tag_tokens(tags) -> list[str]:
     return [str(t) for t in (tags or [])]
 
 
+def _gongu_mood_phrase(tags) -> str:
+    """tags 에서 필러를 걷어낸 자연스러운 분위기 구절을 만든다 (임베딩·표시용).
+
+    '여유가 넘치는 분위기 브금' → '여유가 넘치는'. 구절을 통째로 보존해
+    임베딩 텍스트가 자연스러운 한국어가 되도록 한다(트랙별 변별 강화).
+    """
+    kept = [t.strip() for t in _gongu_tag_tokens(tags)
+            if t.strip() and t.strip() not in _GONGU_TAG_FILLER]
+    return " ".join(kept)
+
+
 def _gongu_mood_from_tags(tags, fallback: list[str]) -> list[str]:
-    """tags(분위기 서술어: 고독한·평화로운…)에서 mood 토큰 추출. 필러 제외, 없으면 fallback."""
+    """tags(분위기 서술어)에서 mood 토큰 리스트 추출(태그 매칭용). 필러 제외, 없으면 fallback."""
     out: list[str] = []
     for t in _gongu_tag_tokens(tags):
         t = t.strip()
-        if t and t not in _GONGU_TAG_STOPWORDS and t not in out:
+        if t and t not in _GONGU_TAG_FILLER and t not in out:
             out.append(t)
-        if len(out) >= 3:
+        if len(out) >= 4:
             break
     return out or list(fallback)
 
@@ -401,10 +422,20 @@ def load_gongu_extra_tracks(exclude_ids: set[str]) -> list[dict]:
             tags = x.get("tags") or ""
             mood = (_gongu_mood_from_tags(tags, series["mood"])
                     if series["mood_from_tags"] else list(series["mood"]))
+            # 분위기 구절: BGM 은 tags 에서 복원한 자연 구절, 정악 시리즈는 정적 mood.
+            mood_phrase = (_gongu_mood_phrase(tags) if series["mood_from_tags"]
+                           else " ".join(mood)) or "전통적인"
             blob = f"{title} {' '.join(_gongu_tag_tokens(tags))}"
             instruments = _gongu_instruments(blob, series["instruments"])
+            ins_text = ", ".join(instruments)
             license_type = _CCL_NORMALIZE.get(x.get("license_type", ""), "CC BY")
             author = x.get("author") or "저작자 미상"
+            # 설명을 악기·분위기·세부장르로 다양화해 임베딩이 트랙별로 변별되게 한다
+            # (동일 템플릿이면 768차원에서도 벡터가 한 점에 뭉쳐 어디서나 같이 추천됨).
+            description = (
+                f"공유마당 자유이용 {series['sub']} «{title}». "
+                f"{ins_text} 편성으로 빚어낸 {mood_phrase} 정서의 {series['genre']}."
+            )
             tracks.append({
                 "id": f"gongu_{sid}",
                 "title": title,
@@ -413,8 +444,8 @@ def load_gongu_extra_tracks(exclude_ids: set[str]) -> list[dict]:
                 "region": series["region"],            # '전국'/'경기' — 권역 매칭은 약하게, 의미·분위기 위주
                 "instruments": instruments,
                 "mood": mood,
-                "description": f"공유마당 자유이용 국악 음원 «{title}». 분위기: {', '.join(mood)}.",
-                "keywords": f"국악,{series['genre']}," + ",".join(mood),
+                "description": description,
+                "keywords": f"국악,{series['genre']},{mood_phrase}," + ",".join(mood),
                 "audio_path": f"/audio/gongu_{sid}.mp3",
                 "audio_source_url": x.get("audio_url"),
                 "asset_kind": "full_track",
@@ -425,6 +456,76 @@ def load_gongu_extra_tracks(exclude_ids: set[str]) -> list[dict]:
                 "is_derivative_allowed": bool(x.get("derivative_ok", True)),
                 "attribution_text": f"«{title}» / {author} / {license_type} (출처: 공유마당)",
             })
+    return tracks
+
+
+# ─────────────────────────────────────────────
+# 공유마당 국악연주곡 중 '권역 정체성이 뚜렷한 민요' 큐레이션.
+# 전국8도민요 CSV 에 없는 권역(영남 등)의 음원 공백을 실제 다운로드 가능한 음원으로 메운다.
+# 모두 CCL(BY) MP3. (제목 정확 매칭 → genre=민요, region=해당 권역)
+# 충청은 별도 음원이 아니라 경토리(=경기) 친연성으로 매칭하므로 여기 두지 않는다.
+# ─────────────────────────────────────────────
+# source_id 로 정확 지정(제목이 "2015 토요명품공연…" 처럼 길거나 변형본이 섞여 있어 정확매칭이 안전).
+# title 은 화면 표기명으로 덮어쓴다. (공개 풀에 영남 국악이 극히 희소 — 확인된 것만 수기 큐레이션.)
+REGIONAL_FOLK_PICKS: list[dict] = [
+    {"sid": "13263048", "title": "밀양아리랑", "region": "영남", "sub": "영남 민요",
+     "mood": ["씩씩함", "호쾌함", "흥겨움"],
+     "instruments": ["피리", "대금", "해금", "가야금", "거문고", "장구"],
+     "desc": "경상도 대표 민요 «밀양아리랑» 국악 연주. 미·솔·라·도·레 메나리토리의 "
+             "억양이 강하고 호쾌하며 씩씩한 영남 가락."},
+    # NOTE: 동래학춤(sid 12822838, 공공누리1)은 메타는 영남 적합이나 gongu wrtFileMediaPlay
+    # 엔드포인트가 0바이트(재생 불가)를 반환 → 제외. 토요명품공연 음원은 직링크 미제공.
+    # 공개 풀(공유마당 5,423 + 국악연주곡 943 + 국립국악원 악구 13,563)을 전수 조사한 결과
+    # 재생 가능한 영남 전용 국악 음원은 밀양아리랑이 유일. 추가는 외부 음원 확보 필요.
+]
+
+
+def _normalize_license(raw: str) -> tuple[str, str]:
+    """공유마당 라이선스 표기 → (정규화 license_type, license_note)."""
+    if raw.startswith("공공누리"):
+        return "공공누리 제1유형", "공유마당 공공저작물 (공공누리 제1유형, 영남 음원 큐레이션)"
+    return _CCL_NORMALIZE.get(raw, "CC BY"), "공유마당 공유저작물 (영남 음원 큐레이션)"
+
+
+def load_regional_folk_tracks(exclude_sids: set[str]) -> list[dict]:
+    """공유마당에서 권역색이 뚜렷한 영남 음원을 source_id 로 정확 큐레이션한다(CSV 공백 보강)."""
+    if not os.path.exists(_GONGU_JSON):
+        return []
+    with open(_GONGU_JSON, encoding="utf-8") as f:
+        pool = json.load(f)
+    by_sid = {str(x.get("source_id")): x for x in pool}
+    seen = set(exclude_sids)
+    tracks: list[dict] = []
+    for pick in REGIONAL_FOLK_PICKS:
+        sid = pick["sid"]
+        x = by_sid.get(sid)
+        if x is None or not x.get("audio_url") or not x.get("creator_safe") or sid in seen:
+            print(f"[경고] 영남 음원 사용 불가/중복: {pick['title']} (sid {sid})")
+            continue
+        seen.add(sid)
+        title = pick["title"]
+        license_type, license_note = _normalize_license(x.get("license_type", ""))
+        author = x.get("author") or "저작자 미상"
+        tracks.append({
+            "id": f"gongu_{sid}",
+            "title": title,
+            "genre": "민요",
+            "sub_genre": pick["sub"],
+            "region": pick["region"],          # 실제 권역 → region_score 1.0 (전용 음원)
+            "instruments": list(pick["instruments"]),
+            "mood": list(pick["mood"]),
+            "description": pick["desc"],
+            "keywords": f"민요,{pick['region']}," + ",".join(pick["mood"]),
+            "audio_path": f"/audio/gongu_{sid}.mp3",
+            "audio_source_url": x["audio_url"],
+            "asset_kind": "full_track",
+            "source": "공유마당",
+            "source_url": x.get("source_url", "https://gongu.copyright.or.kr"),
+            "license_type": license_type,
+            "license_note": license_note,
+            "is_derivative_allowed": bool(x.get("derivative_ok", True)),
+            "attribution_text": f"«{title}» / {author} / {license_type} (출처: 공유마당)",
+        })
     return tracks
 
 
@@ -488,17 +589,26 @@ def build_json() -> None:
         print(f"TourAPI 장소 {len(extra)}곳 추가 병합")
     places = [dict(p) for p in PLACES_RAW] + extra
 
-    # 트랙 풀: 정악(수기 큐레이션) + 전국8도민요(전체 105) + 공유마당 자동 보강(BGM/정악)
+    # 토리 친연성(region_affinity)을 각 장소에 저장한다. 일반 장소 매칭에서도 영남→강원
+    # (메나리 형제)·충청→경기(경토리 형제) 음원을 region_score 1.0 으로 받게 하는 브리지.
+    # 전용 음원이 없는 권역(영남·충청)이 구조적으로 전국 공용 음원에만 묻히는 문제를 푼다.
+    for p in places:
+        p["region_affinity"] = region_affinity_for_music_region(p.get("music_region", ""))
+
+    # 트랙 풀: 정악(수기) + 전국8도민요(105) + 권역민요 보강(영남 등) + 공유마당 자동 보강 + 샘플
     court = load_court_tracks()
     folk = load_csv_tracks()
     court_sids = {t["id"][len("gongu_"):] for t in court}  # 공유마당 중복(source_id) 방지
-    gongu_extra = load_gongu_extra_tracks(court_sids)
+    # 권역민요(영남 밀양아리랑 등)를 먼저 확보하고, 그 source_id 는 일반 보강(정악/BGM)에서 제외.
+    regional = load_regional_folk_tracks(court_sids)
+    regional_sids = {t["id"][len("gongu_"):] for t in regional}
+    gongu_extra = load_gongu_extra_tracks(court_sids | regional_sids)
     samples = load_gugak_samples()  # 국립국악원 sample_loop (있으면)
     # id 중복 제거 (sample 이 기존 트랙과 겹치지 않도록)
-    existing_ids = {t["id"] for t in court + folk + gongu_extra}
+    existing_ids = {t["id"] for t in court + folk + regional + gongu_extra}
     samples = [s for s in samples if s["id"] not in existing_ids]
-    tracks = court + folk + gongu_extra + samples
-    print(f"트랙 구성: 정악(수기) {len(court)} + 민요 {len(folk)} "
+    tracks = court + folk + regional + gongu_extra + samples
+    print(f"트랙 구성: 정악(수기) {len(court)} + 민요 {len(folk)} + 권역민요 보강 {len(regional)} "
           f"+ 공유마당 보강 {len(gongu_extra)} + 국립국악원 샘플 {len(samples)} = {len(tracks)}곡")
 
     # 권역 프로필(regions.py) — 지도 색상 + 권역 클릭 추천의 의미 기준.

@@ -306,6 +306,7 @@ def post_match(body: MatchRequest):
         top_tracks = select_diverse(
             filtered, TOP_N_TRACKS,
             reserved_genre=BGM_GENRE, reserved_count=BGM_RESERVED_SLOTS,
+            seed=place.get("id") or body.place_id,
         )
 
     for track in top_tracks:

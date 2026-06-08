@@ -23,6 +23,9 @@
       ],
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.288889,
         -0.262988,
@@ -814,6 +817,10 @@
       ],
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/3506417_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.878785,
         -0.223853,
@@ -1605,6 +1612,9 @@
       ],
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/35/3506735_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.495495,
         -0.300738,
@@ -2396,6 +2406,9 @@
       ],
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/65/3336365_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.53787,
         -0.098775,
@@ -3186,6 +3199,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3033516",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/94/3033494_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.379967,
         -0.900131,
@@ -3976,6 +3993,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3358892",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/39/3358039_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.248604,
         -0.542577,
@@ -4766,6 +4786,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3056624",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/32/3583132_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.21331,
         0.004123,
@@ -5556,6 +5579,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2686588",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.079694,
         -0.516525,
@@ -6346,6 +6372,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2724392",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/24/3530324_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.172821,
         -0.717322,
@@ -7136,6 +7165,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=264284",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/50/3479250_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.194028,
         -0.428091,
@@ -7926,6 +7958,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126537",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.29796,
         -0.527036,
@@ -8716,6 +8751,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2946075",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/06/2945806_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.089414,
         -0.612221,
@@ -9506,6 +9544,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=893974",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/75/3538275_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.052093,
         -0.507724,
@@ -10296,6 +10338,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2737307",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/42/3527342_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.214857,
         -0.769645,
@@ -11086,6 +11131,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2767851",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/87/3524687_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.141175,
         -0.482744,
@@ -11876,6 +11924,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1939620",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/82/3033882_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.352875,
         -0.498278,
@@ -12666,6 +12718,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126747",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/94/2932494_image2_1.bmp",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.03025,
         -0.531214,
@@ -13456,6 +13511,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2820629",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/04/2820604_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.210136,
         -0.220702,
@@ -14246,6 +14305,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2769810",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/68/3399268_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.167839,
         -0.922096,
@@ -15036,6 +15099,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1957057",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/42/3363542_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.264167,
         -0.515958,
@@ -15826,6 +15892,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125974",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/01/3588401_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.02442,
         -0.537018,
@@ -16616,6 +16686,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129679",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/22/4066522_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.276147,
         -0.376908,
@@ -17406,6 +17480,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126200",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/06/4064706_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.215554,
         -0.251114,
@@ -18196,6 +18274,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126227",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/11/4064711_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.300836,
         -0.346493,
@@ -18986,6 +19068,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125986",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/49/3336449_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.147278,
         -0.484958,
@@ -19776,6 +19862,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127353",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/79/3348279_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.318285,
         -0.521271,
@@ -20566,6 +20655,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127148",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/63/3541263_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.093132,
         -0.781568,
@@ -21356,6 +21448,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1118427",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/60/4063260_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.168003,
         -0.529765,
@@ -22146,6 +22242,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959551",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/80/4059080_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.257994,
         -0.643754,
@@ -22936,6 +23036,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1958060",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/11/3579311_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.162005,
         -0.312963,
@@ -23726,6 +23830,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=795103",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/21/3585321_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.229199,
         -0.300526,
@@ -24516,6 +24624,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126936",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/19/3572519_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.017572,
         -0.386885,
@@ -25306,6 +25418,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3036061",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/46/3036046_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.098953,
         -0.310456,
@@ -26096,6 +26212,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1958207",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/89/3580689_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.033736,
         -0.472872,
@@ -26886,6 +27006,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128048",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/3403717_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.267788,
         -0.46894,
@@ -27676,6 +27800,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127354",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/10/3348310_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.248448,
         -0.419758,
@@ -28466,6 +28593,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127379",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/20/3400820_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.021595,
         -0.792284,
@@ -29256,6 +29386,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959922",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/4054566_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.302399,
         -0.430598,
@@ -30046,6 +30180,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1622809",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/49/3519249_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.086697,
         -0.266227,
@@ -30836,6 +30974,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959561",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/50/3521850_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.079285,
         -0.150336,
@@ -31626,6 +31768,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1960063",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/01/3522001_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.204376,
         -0.290456,
@@ -32416,6 +32562,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1956976",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/14/3517014_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.067538,
         -0.552251,
@@ -33206,6 +33355,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959523",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/56/3519256_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.181154,
         -0.453095,
@@ -33996,6 +34149,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959582",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/10/3521910_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.268305,
         -0.416062,
@@ -34786,6 +34943,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129119",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/04/3521804_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.17736,
         -0.348587,
@@ -35576,6 +35737,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129464",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/42/3504942_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.045932,
         -0.490241,
@@ -36366,6 +36531,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=250394",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.021567,
         -0.438968,
@@ -37156,6 +37324,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959127",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/3510440_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.481774,
         -0.77765,
@@ -37946,6 +38118,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1959867",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/12/3499512_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.238379,
         -0.208706,
@@ -38736,6 +38912,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1954051",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/64/3049064_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.009701,
         -0.611149,
@@ -39526,6 +39706,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621319",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/65/4063365_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.391302,
         -0.53943,
@@ -40316,6 +40500,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127090",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/83/3378183_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.09685,
         -0.390666,
@@ -41106,6 +41293,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126869",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/29/3338729_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.232132,
         -0.318763,
@@ -41896,6 +42087,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127215",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/46/3570346_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.088852,
         -0.462231,
@@ -42686,6 +42880,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125561",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/20/4056420_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.158116,
         -0.508218,
@@ -43476,6 +43673,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127352",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/44/3348044_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.115606,
         -0.563012,
@@ -44266,6 +44466,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1610884",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/28/3519428_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.459024,
         -0.441311,
@@ -45056,6 +45259,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128077",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/48/3519648_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.300232,
         -0.834979,
@@ -45846,6 +46053,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=250395",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/16/3522316_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.000562,
         -0.500907,
@@ -46636,6 +46846,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=921096",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/82/3520182_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.466905,
         -0.163327,
@@ -47426,6 +47639,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1954998",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/3516340_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.190778,
         -0.576048,
@@ -48216,6 +48433,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1113321",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/24/4002124_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.155239,
         -0.448348,
@@ -49006,6 +49226,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1955147",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/88/3521088_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.3594,
         -0.729775,
@@ -49796,6 +50020,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1624822",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/21/4002021_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.147425,
         -0.681635,
@@ -50586,6 +50813,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621391",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/3518940_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.120284,
         -0.555655,
@@ -51376,6 +51607,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1955024",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/59/3517159_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.020459,
         -0.458218,
@@ -52166,6 +52401,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126792",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/11/3528111_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.419088,
         -0.213973,
@@ -52956,6 +53194,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1955020",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/3516366_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.124117,
         -0.645018,
@@ -53746,6 +53988,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125563",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/89/3528589_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.228877,
         -0.522145,
@@ -54536,6 +54781,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125783",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/81/3506481_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.132306,
         -0.445981,
@@ -55326,6 +55574,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127521",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/3506417_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         0.027662,
         -0.325851,
@@ -56116,6 +56367,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126392",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/29/3505929_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.167941,
         -0.850102,
@@ -56906,6 +57160,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128110",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/3506540_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.404353,
         -0.35158,
@@ -57696,6 +57953,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128593",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/87/3496687_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.19489,
         -0.558591,
@@ -58486,6 +58747,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129007",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/72/3506372_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.195791,
         -0.659058,
@@ -59276,6 +59540,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129236",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/3502740_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.117539,
         -0.533432,
@@ -60066,6 +60333,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1626788",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/10/3504010_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.334098,
         -0.609127,
@@ -60856,6 +61127,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1954345",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3502674_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.005522,
         -0.39647,
@@ -61646,6 +61920,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1954350",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/32/3506532_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         0.122036,
         -0.628668,
@@ -62436,6 +62713,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126001",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/37/3355137_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.556547,
         -0.517329,
@@ -63226,6 +63507,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1614506",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/45/3573345_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.133208,
         -0.073388,
@@ -64016,6 +64300,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126471",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/64/3551564_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "제주"
+      ],
       "embedding": [
         0.183304,
         -0.836845,
@@ -64806,6 +65093,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2702546",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/69/3558069_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         0.646483,
         -0.573871,
@@ -65596,6 +65886,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=131998",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/04/4068204_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         0.176218,
         -0.003567,
@@ -66386,6 +66679,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1433722",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/23/4065623_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.159154,
         0.17413,
@@ -67176,6 +67473,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132053",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/82/3582082_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.033782,
         -0.073073,
@@ -67966,6 +68266,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2755359",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/50/2755350_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.2286,
         0.096002,
@@ -68756,6 +69060,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132126",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/65/976265_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.038168,
         -0.095614,
@@ -69546,6 +69854,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3090931",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/21/3090921_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.006207,
         -0.063675,
@@ -70336,6 +70647,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2764919",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/95/4056995_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.761539,
         -0.234603,
@@ -71126,6 +71440,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3060928",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/31/3053831_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.298309,
         0.194595,
@@ -71916,6 +72233,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2756122",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.045321,
         0.27378,
@@ -72706,6 +73027,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1960901",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/96/3517096_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.196274,
         -0.121436,
@@ -73496,6 +73821,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132279",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/55/3522055_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.12435,
         -0.116479,
@@ -74286,6 +74615,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1624161",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/32/3522832_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.076459,
         0.004061,
@@ -75076,6 +75409,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132081",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/31/4002231_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.152374,
         0.023205,
@@ -75866,6 +76202,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132636",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/33/3527233_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.073496,
         0.208081,
@@ -76656,6 +76996,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=584736",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.385314,
         -0.348756,
@@ -77446,6 +77790,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1750106",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/59/3523659_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.216523,
         0.140654,
@@ -78236,6 +78583,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2784049",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/4002466_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.189815,
         0.103458,
@@ -79026,6 +79377,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2784221",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3521874_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.055226,
         0.052939,
@@ -79816,6 +80171,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132101",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/98/3529398_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.338751,
         -0.013333,
@@ -80606,6 +80965,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2766211",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/85/3523885_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.059079,
         0.072188,
@@ -81396,6 +81758,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132116",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/78/3518078_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.113089,
         0.058563,
@@ -82186,6 +82552,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132023",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/73/3498073_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.187673,
         -0.384468,
@@ -82976,6 +83346,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132274",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/12/3502712_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.280341,
         -0.133237,
@@ -83766,6 +84139,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132640",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.461105,
         0.131146,
@@ -84556,6 +84933,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2926970",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/58/2926958_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.480365,
         -0.15398,
@@ -85346,6 +85727,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2929920",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/78/2929878_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.209668,
         0.255881,
@@ -86136,6 +86521,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=250510",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/00/1959800_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.175689,
         -0.14214,
@@ -86926,6 +87315,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132028",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/71/1983871_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.233739,
         -0.384175,
@@ -87716,6 +88109,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132410",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/65/1972065_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.181894,
         -0.15032,
@@ -88506,6 +88902,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=132055",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/1971674_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.19603,
         -0.178061,
@@ -89296,6 +89695,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129811",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/35/4054035_image2_1.png",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.213345,
         -0.296714,
@@ -90086,6 +90488,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128994",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/37/4061537_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.145851,
         -0.252249,
@@ -90876,6 +91281,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3025473",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/64/3025464_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.376566,
         -0.48552,
@@ -91666,6 +92074,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=795829",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/79/3536679_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.627825,
         -0.300619,
@@ -92456,6 +92868,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126795",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/56/3378456_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.293376,
         -0.393619,
@@ -93246,6 +93661,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126391",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/61/3518661_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.218851,
         -0.5584,
@@ -94036,6 +94454,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3091065",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/61/3091061_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.106299,
         -0.938491,
@@ -94826,6 +95248,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3043900",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/84/3043884_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.034826,
         -0.484171,
@@ -95616,6 +96041,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3444338",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/87/3444287_image2_1.png",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.443644,
         -0.501347,
@@ -96406,6 +96835,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129051",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/41/3521941_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.463732,
         -0.460577,
@@ -97196,6 +97629,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=702361",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/77/4001977_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.112644,
         -0.475512,
@@ -97986,6 +98423,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1610542",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/3526117_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.570227,
         -0.478662,
@@ -98776,6 +99217,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1614564",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/85/3526385_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.464743,
         -0.421405,
@@ -99566,6 +100011,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129057",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/27/3524627_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.594448,
         -0.255153,
@@ -100356,6 +100805,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1372956",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3510074_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.140596,
         -0.227461,
@@ -101146,6 +101599,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128759",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.650783,
         -0.630082,
@@ -101936,6 +102392,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1373030",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/39/3510039_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.211112,
         -0.473685,
@@ -102724,8 +103184,12 @@
       ],
       "source": "한국관광공사 TourAPI(국문) / data.go.kr 15101578",
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129125",
-      "image_url": "https://tong.visitkorea.or.kr/cms/resource/03/2837903_image2_1.jpg",
-      "image_copyright": "Type3",
+      "image_url": "",
+      "image_copyright": "",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.389295,
         -0.499297,
@@ -103516,6 +103980,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1627167",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/96/3536296_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.698592,
         -0.681703,
@@ -104306,6 +104774,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129433",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/49/2534049_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.448058,
         -0.541808,
@@ -105096,6 +105568,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=252606",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/96/2516396_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.671149,
         -0.43278,
@@ -105886,6 +106361,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1600719",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.491286,
         -0.351821,
@@ -106676,6 +107154,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1584115",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.106644,
         -0.461708,
@@ -107466,6 +107947,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1390248",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/14/3591414_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.435723,
         -0.268154,
@@ -108256,6 +108740,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=231907",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/79/1606479_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.739071,
         -0.391854,
@@ -109046,6 +109533,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=231931",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/01/3577201_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.089314,
         -0.793565,
@@ -109836,6 +110327,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128542",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/03/3577703_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.248733,
         -0.702031,
@@ -110626,6 +111120,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128591",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/38/3070038_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.401128,
         -0.300257,
@@ -111416,6 +111914,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129688",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/69/3575369_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.21753,
         -0.407594,
@@ -112206,6 +112708,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2612877",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/08/3570508_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.477862,
         -0.348553,
@@ -112996,6 +113501,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1055245",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/34/3567134_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.024585,
         -0.092461,
@@ -113786,6 +114295,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125987",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/50/4063450_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.121462,
         -0.484854,
@@ -114576,6 +115089,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126210",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/36/4063436_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.151256,
         -0.058272,
@@ -115366,6 +115883,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128738",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/28/4063328_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.273613,
         -0.326856,
@@ -116156,6 +116677,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3367497",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/81/3367481_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.0452,
         -0.487067,
@@ -116946,6 +117471,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128139",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/62/3513562_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.152805,
         -0.735498,
@@ -117736,6 +118264,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128576",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/16/3521316_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.006636,
         -0.666596,
@@ -118526,6 +119057,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128745",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/28/3528028_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.252871,
         -0.376498,
@@ -119316,6 +119851,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126595",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/05/3524805_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.336844,
         -0.801045,
@@ -120106,6 +120645,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621742",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3508674_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.234852,
         -0.462162,
@@ -120896,6 +121439,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126192",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/45/3510645_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.102107,
         -0.50223,
@@ -121686,6 +122233,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621397",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.335029,
         -0.420328,
@@ -122476,6 +123027,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621751",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.05846,
         -0.600012,
@@ -123266,6 +123821,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126211",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/39/3028739_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.286371,
         -0.301953,
@@ -124056,6 +124615,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128681",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/22/3575922_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.016967,
         -0.344169,
@@ -124846,6 +125409,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=319571",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/28/3575928_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.164577,
         -0.26871,
@@ -125636,6 +126203,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621809",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/97/3575897_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.065158,
         -0.605931,
@@ -126426,6 +126997,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621842",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/00/3575800_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.198108,
         -0.671522,
@@ -127216,6 +127791,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621799",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/10/3575810_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.258742,
         -0.667246,
@@ -128006,6 +128585,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=319812",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/57/3575757_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.152674,
         -0.597709,
@@ -128796,6 +129379,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=319726",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/74/3575874_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.111302,
         -0.009177,
@@ -129586,6 +130173,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621714",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/68/3575768_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.436651,
         -0.134696,
@@ -130376,6 +130967,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621820",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/70/3575870_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.087278,
         -0.682727,
@@ -131166,6 +131761,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126681",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.285827,
         -0.552836,
@@ -131956,6 +132555,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127505",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/46/3561046_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.278843,
         -0.472508,
@@ -132746,6 +133348,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=791209",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/96/3406096_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.103394,
         -0.770281,
@@ -133536,6 +134142,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621734",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/41/3412541_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.201944,
         -0.435574,
@@ -134326,6 +134936,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126218",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/08/3534308_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.161518,
         -0.369677,
@@ -135116,6 +135730,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129523",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/30/3542530_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.226794,
         -0.401774,
@@ -135906,6 +136524,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128638",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/03/3542503_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.296021,
         -0.733481,
@@ -136696,6 +137318,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2756726",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/05/3542405_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.147498,
         -0.228178,
@@ -137485,6 +138111,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2792873",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/62/4069262_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.414755,
         -0.680012,
@@ -138274,6 +138904,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127217",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/69/4060869_image2_1.png",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.041714,
         -0.358933,
@@ -139063,6 +139697,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=4059521",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/52/4059552_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.306285,
         -0.480375,
@@ -139852,6 +140490,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3543149",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/42/3543142_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.021813,
         -0.694348,
@@ -140641,6 +141283,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127208",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/93/3378193_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.137517,
         -0.238723,
@@ -141430,6 +142075,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2765265",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/24/4055824_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         0.309334,
         -0.423399,
@@ -142219,6 +142867,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3546147",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/27/3546127_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.395367,
         -0.154228,
@@ -143008,6 +143660,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3078024",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/05/3054305_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.549337,
         -0.243573,
@@ -143797,6 +144452,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126398",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/43/2723743_image2_1.png",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.066917,
         -0.485874,
@@ -144586,6 +145244,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3436858",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/60/3562260_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.092351,
         -0.480326,
@@ -145375,6 +146036,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3076316",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/70/3497870_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.111561,
         0.096739,
@@ -146164,6 +146828,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127931",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/51/3497851_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.047316,
         -0.342676,
@@ -146953,6 +147620,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2654613",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/91/3492391_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.057234,
         -0.246386,
@@ -147742,6 +148413,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125959",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/91/3586191_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.162122,
         -0.531556,
@@ -148531,6 +149206,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621437",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/38/3429438_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.287783,
         -0.146386,
@@ -149320,6 +149999,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2754455",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/71/3377671_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.00894,
         -0.31364,
@@ -150109,6 +150792,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2756611",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/23/3542523_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.32612,
         -0.317979,
@@ -150898,6 +151585,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129636",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/05/3560505_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.084588,
         -0.307527,
@@ -151687,6 +152378,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=917225",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/27/3560127_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         -0.009758,
         -0.636434,
@@ -152476,6 +153171,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1624489",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/81/3557981_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.075438,
         -0.527553,
@@ -153265,6 +153963,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125962",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/86/3537586_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.216525,
         -0.229826,
@@ -154054,6 +154756,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128766",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/95/3018295_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.060784,
         -0.381276,
@@ -154843,6 +155548,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126423",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/65/3519365_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.04506,
         -0.731429,
@@ -155632,6 +156340,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2690525",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/28/3518628_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.25026,
         -0.731522,
@@ -156421,6 +157132,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3017112",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/82/3017082_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.061144,
         -0.466009,
@@ -157210,6 +157925,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=125990",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/01/2671501_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "경기",
+        "충청"
+      ],
       "embedding": [
         0.159551,
         -0.222678,
@@ -157999,6 +158718,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2789656",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/25/2795425_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.036899,
         -0.50731,
@@ -158788,6 +159511,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1607188",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/13/3358513_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.329468,
         -0.330722,
@@ -159577,6 +160303,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2786876",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/46/2790846_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.205105,
         -0.238146,
@@ -160366,6 +161096,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1622455",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/21/3374821_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.078483,
         -0.200354,
@@ -161155,6 +161889,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128047",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/48/4063548_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.397999,
         -0.789961,
@@ -161942,8 +162680,12 @@
       ],
       "source": "한국관광공사 TourAPI(국문) / data.go.kr 15101578",
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128038",
-      "image_url": "https://tong.visitkorea.or.kr/cms/resource/77/3500877_image2_1.jpg",
-      "image_copyright": "Type1",
+      "image_url": "",
+      "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.237895,
         -0.431836,
@@ -162733,6 +163475,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126515",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/06/3454106_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.488636,
         -0.62934,
@@ -163522,6 +164267,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126406",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/41/3053741_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.09659,
         0.086877,
@@ -164311,6 +165059,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127628",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/99/3534199_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.019574,
         -0.555306,
@@ -165100,6 +165851,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3532127",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/80/3532080_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.268395,
         -0.314756,
@@ -165889,6 +166644,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3366619",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/33/3580733_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.332906,
         -0.288691,
@@ -166678,6 +167437,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3444817",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/33/3444733_image2_1.JPG",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.208386,
         -0.551043,
@@ -167467,6 +168230,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=231948",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/37/3521937_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.338826,
         -0.88571,
@@ -168256,6 +169023,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126835",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/21/4002121_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.111957,
         -0.611634,
@@ -169045,6 +169816,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2670222",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/93/3526593_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.362613,
         -0.44861,
@@ -169834,6 +170609,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=2613166",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/67/3499367_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.031934,
         -0.621517,
@@ -170623,6 +171402,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127128",
       "image_url": "https://tong.visitkorea.or.kr/cms/resource/41/3489041_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.11124,
         -0.731957,
@@ -171412,6 +172195,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=3017254",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.048221,
         -0.362792,
@@ -172199,8 +172986,11 @@
       ],
       "source": "한국관광공사 TourAPI(국문) / data.go.kr 15101578",
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128786",
-      "image_url": "https://tong.visitkorea.or.kr/cms/resource/60/182160_image2_1.jpg",
-      "image_copyright": "Type3",
+      "image_url": "",
+      "image_copyright": "",
+      "region_affinity": [
+        "강원"
+      ],
       "embedding": [
         -0.203308,
         -0.379632,
@@ -172990,6 +173780,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128664",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.018039,
         -0.337031,
@@ -173779,6 +174573,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=231949",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/05/3585005_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.276359,
         -0.701266,
@@ -174568,6 +175366,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=130689",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/91/3576991_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.134471,
         -0.421812,
@@ -175357,6 +176159,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=250274",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/08/3575908_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.127091,
         -0.653647,
@@ -176146,6 +176952,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1621727",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/88/3575888_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.090104,
         -0.401811,
@@ -176935,6 +177745,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=231953",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/28/573728_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.220962,
         -0.652508,
@@ -177724,6 +178537,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128657",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/29/3570229_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.278219,
         -0.658706,
@@ -178513,6 +179330,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=1624511",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/80/3562880_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         -0.081573,
         -0.35952,
@@ -179302,6 +180122,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=126834",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/37/3421437_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.043535,
         -0.281623,
@@ -180091,6 +180915,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=791558",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/42/3542342_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.103691,
         -0.707893,
@@ -180880,6 +181708,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129243",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/22/3536122_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.312916,
         -0.627147,
@@ -181669,6 +182500,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=128585",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/27/3538827_image2_1.jpg",
       "image_copyright": "Type3",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         0.225039,
         -0.450034,
@@ -182458,6 +183293,10 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127089",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/18/3538818_image2_1.JPG",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "강원",
+        "영남"
+      ],
       "embedding": [
         -0.105478,
         -0.41115,
@@ -183247,6 +184086,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=127466",
       "image_url": "",
       "image_copyright": "",
+      "region_affinity": [
+        "경기"
+      ],
       "embedding": [
         -0.32792,
         -0.580931,
@@ -184036,6 +184878,9 @@
       "source_url": "https://apis.data.go.kr/B551011/KorService2/detailCommon2?contentId=129200",
       "image_url": "http://tong.visitkorea.or.kr/cms/resource/99/3528399_image2_1.jpg",
       "image_copyright": "Type1",
+      "region_affinity": [
+        "호남"
+      ],
       "embedding": [
         0.066224,
         -0.706664,

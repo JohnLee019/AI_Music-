@@ -150,3 +150,19 @@ def region_keywords_for_music_region(music_region: str) -> list[str]:
     key = PLACE_REGION_GROUP.get(music_region)
     prof = get_profile(key) if key else None
     return list(prof["keywords"]) if prof else []
+
+
+def region_affinity_for_music_region(music_region: str) -> list[str]:
+    """place.music_region 의 토리 친연성(region_affinity) 집합을 돌려준다.
+
+    영남·충청처럼 전용 음원이 없는 권역이 토리 형제 음원(메나리=강원, 경토리=경기)을
+    region_score 1.0 으로 받게 하는 브리지. 권역 클릭뿐 아니라 **일반 장소 매칭**에서도
+    적용하려고 generate_data 가 이 값을 각 place 에 저장한다.
+    자기 자신(music_region)도 항상 포함해 전용 음원이 생기면 자동으로 일치한다.
+    """
+    key = PLACE_REGION_GROUP.get(music_region)
+    prof = get_profile(key) if key else None
+    affinity = set(prof["region_affinity"]) if prof else set()
+    if music_region:
+        affinity.add(music_region)
+    return sorted(affinity)
