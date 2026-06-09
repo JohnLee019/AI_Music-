@@ -4,3 +4,4 @@ numpy==2.4.6
 python-dotenv==1.0.1
 httpx==0.28.1
 imageio-ffmpeg==0.6.0   # 번들 ffmpeg 바이너리 (prep: WAV→MP3 변환, 시스템 설치 불필요)
+pytest==9.0.3

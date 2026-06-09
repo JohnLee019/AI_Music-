@@ -2,6 +2,22 @@
 
 const BASE = "/api";
 
+export class TestFailureError extends Error {
+  testOutput: string;
+  constructor(testOutput: string) {
+    super("테스트 실패로 서비스가 비활성화되었습니다.");
+    this.name = "TestFailureError";
+    this.testOutput = testOutput;
+  }
+}
+
+async function checkTestGate(res: Response): Promise<void> {
+  if (res.status === 503) {
+    const body = await res.json().catch(() => ({}));
+    throw new TestFailureError(body.test_output ?? "알 수 없는 테스트 오류");
+  }
+}
+
 export interface Place {
   id: string;
   name: string;
@@ -70,6 +86,7 @@ export interface MatchResult {
 
 export async function fetchPlaces(): Promise<Place[]> {
   const res = await fetch(`${BASE}/places`);
+  await checkTestGate(res);
   if (!res.ok) throw new Error("장소 목록 로드 실패");
   return res.json();
 }

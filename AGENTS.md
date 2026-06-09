@@ -98,7 +98,9 @@ project-root/
 │   │   ├── generate_reasoning.py  # 히어로 조합 LLM 근거 → reasoning.json (prep, 런타임 아님) ✅
 │   │   ├── probe_missing_images.py # (진단, 1회성) image_url 빈 장소를 detailImage2로 보완 조회 ✅
 │   │   └── patch_recovered_images.py # (1회성) 위 결과를 places.json에 기록 ✅
-│   [미생성] tests/     # 매칭/라이선스 스모크 테스트
+│   ├── tests/
+│   │   ├── test_matching.py   # 매칭 엔진 스모크 테스트 ✅
+│   │   └── test_licensing.py  # 라이선스 파생·필터 스모크 테스트 ✅
 │   └── requirements.txt
 ├── frontend/
 │   └── src/
@@ -277,7 +279,7 @@ final = 0.30*지역 + 0.25*유형 + 0.30*의미 + 0.15*태그     # 각 항 ∈ 
   - ✅ `rules.py`: 지역 권역 매핑 + 장소 유형별 장르 가중
   - ✅ `licensing.py`: `commercial_ok`/`derivative_ok` 파생 + `use_case` 필터
   - ✅ `POST /api/match` (place_id 경로), 점수순·근거 포함, 하드코딩 없음
-  - ❌ `backend/tests/` 없음 — 매칭·라이선스 스모크 테스트 미작성 (시연용 API 동작으로 대체 검증)
+  - ✅ `backend/tests/` — `test_matching.py`(19개) + `test_licensing.py`(33개), 52/52 통과
 
 - **Phase 3 — 프론트 끝-끝 + 자유 텍스트 입력** ✅ 핵심 경로 완료
   - ✅ 장소 선택 → 매칭 결과 → 재생 (end-to-end 동작)

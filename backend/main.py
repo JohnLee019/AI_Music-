@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -31,6 +34,10 @@ from matching import match, select_diverse  # noqa: E402
 from poems import candidates_for_place, get_poem, poem_recipe, select_poem, to_display  # noqa: E402
 from regions import REGION_PROFILES, get_profile  # noqa: E402
 
+# ── 테스트 실패 시 서비스 차단 ───────────────────────
+# None = 통과, str = pytest 출력 (실패 내용)
+_test_failure: str | None = None
+
 # ── 앱 시작 시 데이터 로드 ────────────────────────────
 _places: list[dict[str, Any]] = []
 _tracks: list[dict[str, Any]] = []
@@ -45,7 +52,23 @@ _poem_embeddings: dict[str, list[float]] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _places, _tracks, _reasoning, _region_embeddings, _poems, _poem_embeddings
+    global _places, _tracks, _reasoning, _region_embeddings, _poems, _poem_embeddings, _test_failure
+
+    # 테스트를 먼저 실행. 하나라도 실패하면 API 전체를 503으로 차단한다.
+    _backend_dir = os.path.dirname(os.path.abspath(__file__))
+    proc = subprocess.run(
+        [sys.executable, "-m", "pytest", "tests/", "--tb=short", "-q", "--no-header"],
+        capture_output=True,
+        text=True,
+        cwd=_backend_dir,
+    )
+    if proc.returncode != 0:
+        _test_failure = (proc.stdout + proc.stderr).strip()
+        print(f"\n[startup] 테스트 실패 — API 비활성화\n{_test_failure}\n", flush=True)
+        yield
+        return
+
+    print("[startup] 모든 테스트 통과 — 정상 시작", flush=True)
     assert_embedding_consistency()  # places·tracks·regions 임베딩 차원 일치 검증 (AGENTS.md §3)
     _places = load_places()
     _tracks = load_tracks()
@@ -67,6 +90,18 @@ BGM_GENRE = "국악 BGM"
 BGM_RESERVED_SLOTS = 2
 
 app = FastAPI(title="GugakPlace API", version="0.1.0", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def test_gate(request: Request, call_next):
+    """테스트 실패 시 /api/* 요청을 모두 503으로 차단한다."""
+    if _test_failure is not None and request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "테스트 실패로 서비스가 비활성화되었습니다.", "test_output": _test_failure},
+        )
+    return await call_next(request)
+
 
 # ── CORS ────────────────────────────────────────────
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
@@ -444,4 +479,9 @@ async def post_generate(body: GenerateRequest):
 
 @app.get("/health")
 def health():
+    if _test_failure is not None:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "test_failure", "test_output": _test_failure},
+        )
     return {"status": "ok", "places": len(_places), "tracks": len(_tracks)}

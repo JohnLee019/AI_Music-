@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MatchResult, Place } from "./api";
-import { fetchMatch, fetchMatchByRegion, fetchMatchByRegionQuery, fetchMatchByText, fetchPlaces } from "./api";
+import { TestFailureError, fetchMatch, fetchMatchByRegion, fetchMatchByRegionQuery, fetchMatchByText, fetchPlaces } from "./api";
 import GenerateBGM from "./components/GenerateBGM";
 import PlaceSelector from "./components/PlaceSelector";
 import RegionSoundMap from "./components/RegionSoundMap";
@@ -34,6 +34,8 @@ export default function App() {
   const [result, setResult] = useState<MatchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [testFailure, setTestFailure] = useState<string | null>(null);
+  const [backendDown, setBackendDown] = useState(false);
   const [playingAudio, setPlayingAudio] = useState<HTMLAudioElement | null>(null);
   const [isPlaceCollapsed, setIsPlaceCollapsed] = useState(false);
   const [currentHeroImgIdx, setCurrentHeroImgIdx] = useState(0);
@@ -65,7 +67,13 @@ export default function App() {
   useEffect(() => {
     fetchPlaces()
       .then(setPlaces)
-      .catch(() => setError("백엔드에 연결할 수 없습니다. 서버를 먼저 실행해 주세요."));
+      .catch((err) => {
+        if (err instanceof TestFailureError) {
+          setTestFailure(err.testOutput);
+        } else {
+          setBackendDown(true);
+        }
+      });
   }, []);
 
   // 장소 바뀌면 트랙 필터 초기화
@@ -198,6 +206,51 @@ export default function App() {
   };
 
   const hasActiveFilter = genreFilter !== null || commercialOnly;
+
+  if (backendDown) {
+    return (
+      <div className="min-h-screen bg-ivory flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md w-full">
+          <div className="font-serif text-6xl text-gold/40 mb-6 select-none">樂</div>
+          <h1 className="text-2xl font-serif font-semibold text-ink mb-3">
+            서비스에 접속할 수 없습니다
+          </h1>
+          <p className="text-stone-500 text-sm leading-relaxed mb-8">
+            잠시 후 다시 시도해 주세요.
+          </p>
+          <div className="rule-gold w-16 mx-auto mb-8" />
+          <p className="text-stone-600 text-sm leading-relaxed">
+            프로그램 이용에 불편을 주어 죄송합니다.<br />
+            사용 중 문의는{" "}
+            <a href="tel:010-9660-8546" className="font-semibold text-jade hover:underline">
+              010-9660-8546
+            </a>
+            으로 주세요.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (testFailure !== null) {
+    return (
+      <div className="min-h-screen bg-red-950 text-red-100 flex flex-col items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
+          <div className="text-5xl mb-4 text-red-400 font-serif select-none">✕</div>
+          <h1 className="text-2xl font-bold mb-2">서비스 비활성화 — 테스트 실패</h1>
+          <p className="text-red-300 text-sm mb-6">
+            백엔드 테스트가 실패했습니다. 코드를 수정하고 서버를 재시작해야 합니다.
+          </p>
+          <pre className="bg-red-900/60 border border-red-800 rounded-xl p-5 text-xs font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto max-h-[60vh] overflow-y-auto">
+            {testFailure}
+          </pre>
+          <p className="mt-4 text-xs text-red-400">
+            문제를 수정한 뒤 <code className="bg-red-900 px-1 rounded">uvicorn main:app --reload</code> 로 서버를 재시작하세요.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-ivory">
