@@ -28,15 +28,15 @@ export default function ScoreRadar({ scores }: Props) {
   return (
     <ResponsiveContainer width="100%" height={160}>
       <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
-        <PolarGrid stroke="#e7e5e4" />
+        <PolarGrid stroke="#C9A86A" strokeOpacity={0.35} />
         <PolarAngleAxis dataKey="axis" tick={{ fontSize: 11, fill: "#78716c" }} />
         <Radar
           name="점수"
           dataKey="value"
-          stroke="#4a7c59"
-          fill="#4a7c59"
-          fillOpacity={0.25}
-          dot={{ r: 3, fill: "#4a7c59" }}
+          stroke="#1F4D3A"
+          fill="#1F4D3A"
+          fillOpacity={0.2}
+          dot={{ r: 3, fill: "#1F4D3A" }}
         />
         <Tooltip formatter={(v: number) => [`${v}점`, "점수"]} />
       </RadarChart>

@@ -31,7 +31,7 @@ export default function SynopsisSearch({ onSearch, loading, scopeLabel, onClearS
 
   return (
     <section>
-      <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+      <h2 className="section-label mb-3 block">
         시놉시스·무드로 찾기
       </h2>
 
@@ -64,7 +64,7 @@ export default function SynopsisSearch({ onSearch, loading, scopeLabel, onClearS
           rows={3}
           placeholder="영상 기획·분위기를 자유롭게 적어보세요. 예) 비 내리는 한옥에서 차를 마시는 고요한 장면…"
           className="w-full resize-none px-3 py-2 text-sm rounded-lg border border-stone-200 bg-white
-                     focus:outline-none focus:ring-2 focus:ring-jade/40 focus:border-jade
+                     focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold
                      placeholder:text-stone-400 transition-colors"
         />
 
@@ -88,7 +88,7 @@ export default function SynopsisSearch({ onSearch, loading, scopeLabel, onClearS
             disabled={loading || !text.trim()}
             className="btn-primary text-sm px-5 py-1.5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "분석 중…" : "🔍 매칭"}
+            {loading ? "분석 중…" : "매칭하기"}
           </button>
         </div>
 

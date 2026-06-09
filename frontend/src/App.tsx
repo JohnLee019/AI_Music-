@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MatchResult, Place } from "./api";
 import { fetchMatch, fetchMatchByRegion, fetchMatchByRegionQuery, fetchMatchByText, fetchPlaces } from "./api";
 import GenerateBGM from "./components/GenerateBGM";
 import PlaceSelector from "./components/PlaceSelector";
 import RegionSoundMap from "./components/RegionSoundMap";
+import SelectedPlaceMap from "./components/SelectedPlaceMap";
 import SynopsisSearch from "./components/SynopsisSearch";
 import TrackCard from "./components/TrackCard";
 import { REGION_META } from "./data/regionGeo";
@@ -33,6 +34,14 @@ export default function App() {
   const [placeView, setPlaceView] = useState<"list" | "map">("list");
   // 소리 지도에서 선택한 권역(설정 시 시놉시스 검색이 그 권역 안으로 한정됨)
   const [activeRegion, setActiveRegion] = useState<{ key: string; label: string } | null>(null);
+  // 결과 패널(추천 국악 결과) — 선택 시 히어로까지 올라가지 않고 이 지점까지만 스크롤
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const scrollToResults = () => {
+    // 레이아웃이 갱신된 다음 프레임에 부드럽게 결과 패널 상단으로 이동
+    requestAnimationFrame(() =>
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
 
   useEffect(() => {
     fetchPlaces()
@@ -88,7 +97,7 @@ export default function App() {
     setError(null);
     setLoading(true);
     stopCurrentAudio();
-    window.scrollTo(0, 0);
+    scrollToResults();
     try {
       const data = await fetchMatch(place.id);
       setResult(data);
@@ -109,7 +118,7 @@ export default function App() {
     setError(null);
     setLoading(true);
     stopCurrentAudio();
-    window.scrollTo(0, 0);
+    scrollToResults();
     try {
       const data = await fetchMatchByRegion(regionKey);
       setResult(data);
@@ -128,7 +137,7 @@ export default function App() {
     setError(null);
     setLoading(true);
     stopCurrentAudio();
-    window.scrollTo(0, 0);
+    scrollToResults();
     try {
       // 활성 권역이 있으면 그 권역 안에서 무드 검색, 없으면 전체 의미 검색
       const data = activeRegion
@@ -172,24 +181,42 @@ export default function App() {
   const hasActiveFilter = genreFilter !== null || commercialOnly;
 
   return (
-    <div className="min-h-screen bg-hanji">
-      {/* 헤더 */}
-      <header className="bg-ink text-hanji py-5 px-6 shadow-lg">
-        <div className="max-w-[1600px] mx-auto px-6 flex items-end gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="text-gold">國樂</span>Place
-            </h1>
-            <p className="text-xs text-stone-400 mt-0.5">
-              장소의 문화 정체성과 국악을 AI로 매칭합니다
-            </p>
-          </div>
-          <div className="ml-auto text-right hidden sm:block">
-            <div className="text-xs text-stone-500">하이브리드 매칭 엔진</div>
-            <div className="text-xs text-stone-600">지역 · 유형 · 의미 · 태그</div>
+    <div className="min-h-screen bg-ivory">
+      {/* 상단 내비게이션 — 반투명 아이보리, 가는 금박 하단선 */}
+      <header className="sticky top-0 z-40 bg-ivory/80 backdrop-blur-md border-b border-gold/25">
+        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center gap-4">
+          <h1 className="text-xl font-serif font-semibold tracking-tight text-ink">
+            <span className="text-gold">國樂</span>Place
+          </h1>
+          <div className="ml-auto hidden sm:flex items-center gap-6 text-xs text-stone-500">
+            <span>하이브리드 매칭 엔진</span>
+            <span className="text-stone-300">|</span>
+            <span>지역 · 유형 · 의미 · 태그</span>
           </div>
         </div>
       </header>
+
+      {/* 히어로 — 전통 사진 위 먹색 그라데이션, 명조 헤드라인 */}
+      <section className="relative overflow-hidden bg-ink text-ivory">
+        <img
+          src="/w7weugnjtvmxk7t4hbc6.jpg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-75 brightness-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/45 to-ink/15" />
+        <div className="relative max-w-[1600px] mx-auto px-6 py-20 sm:py-28">
+          <p className="section-label text-gold-light mb-4">장소의 소리를 찾다</p>
+          <h2 className="font-serif text-3xl sm:text-5xl font-semibold leading-tight tracking-tight max-w-2xl">
+            장소의 문화 정체성과
+            <br className="hidden sm:block" /> 국악을 잇다
+          </h2>
+          <div className="rule-gold w-24 my-6" />
+          <p className="text-sm sm:text-base text-ivory/70 max-w-xl leading-relaxed">
+            궁궐·한옥·시장의 결을 읽어, 그 장소에 어울리는 국악을 AI가 정성껏 골라 드립니다.
+          </p>
+        </div>
+      </section>
 
       <main className="max-w-[1600px] mx-auto px-6 py-8">
         <div className="lg:grid lg:grid-cols-[600px_1fr] lg:gap-10">
@@ -245,6 +272,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+                <SelectedPlaceMap place={selected} />
               </div>
             ) : (
               <SynopsisSearch
@@ -257,18 +285,18 @@ export default function App() {
 
             {/* 구분선 */}
             <div className="flex items-center gap-3 text-xs text-stone-400">
-              <div className="flex-1 h-px bg-stone-200" />
+              <div className="flex-1 rule-gold" />
               또는 장소로 찾기
-              <div className="flex-1 h-px bg-stone-200" />
+              <div className="flex-1 rule-gold" />
             </div>
 
             {/* 목록 / 소리 지도 토글 */}
             <div className="flex justify-center gap-1.5">
-              {([["list", "📋 목록"], ["map", "🗺️ 전국 소리 지도"]] as const).map(([v, label]) => (
+              {([["list", "목록"], ["map", "전국 소리 지도"]] as const).map(([v, label]) => (
                 <button
                   key={v}
                   onClick={() => handleViewChange(v)}
-                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                  className={`px-4 py-1.5 text-xs rounded-full border transition-colors ${
                     placeView === v
                       ? "bg-jade text-white border-jade"
                       : "border-stone-200 text-stone-500 hover:border-jade hover:text-jade"
@@ -307,16 +335,16 @@ export default function App() {
         </div>
 
         {/* ── 오른쪽: 결과 패널 ── */}
-        <div className="mt-8 lg:mt-0 min-w-0">
+        <div ref={resultsRef} className="mt-8 lg:mt-0 min-w-0 scroll-mt-20">
 
         {/* 빈 상태 안내 (데스크톱에서 오른쪽 여백 방지) */}
         {!loading && !error && !result && (
           <div className="hidden lg:block lg:sticky lg:top-8">
-            <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+            <h2 className="section-label mb-3 block">
               추천 국악 결과
             </h2>
             <div className="card text-center text-stone-400 py-12 min-h-[190px] flex flex-col justify-center items-center">
-              <div className="text-3xl mb-2">🎴</div>
+              <div className="font-serif text-4xl text-gold/40 mb-3 select-none">樂</div>
               <p className="text-sm leading-relaxed text-stone-500">
                 왼쪽에서 장소·권역을 클릭하거나 장면을 입력하면<br />
                 추천 국악이 여기에 나타납니다.
@@ -342,8 +370,8 @@ export default function App() {
 
         {/* 결과 */}
         {result && !loading && (
-          <section>
-            <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+          <section className="animate-fade-in">
+            <h2 className="section-label mb-3 block">
               추천 국악 결과
             </h2>
             {/* 장소 정보 (자유 텍스트 검색 결과로 매칭된 장소인 경우에만 우측에 표시) */}
@@ -394,14 +422,16 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+                {/* 권역 매칭 결과에서는 위치 지도를 숨긴다 — 전국 소리 지도가 이미 권역을 보여줌 */}
+                {!result.region_tracks && <SelectedPlaceMap place={result.place} />}
               </div>
             )}
 
             {/* 권역 모드: 추천(top)을 먼저 강조하고, 아래에 권역 전체 목록을 둘러보게 한다 */}
             {result.region_tracks && result.tracks.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase mb-3">
-                  ✨ 이 권역 추천 {result.tracks.length}곡
+                <h2 className="section-label mb-3 block">
+                  이 권역 추천 {result.tracks.length}곡
                 </h2>
                 <div className="space-y-4">
                   {result.tracks.map((track, i) => (
@@ -420,7 +450,7 @@ export default function App() {
             {/* 매칭 헤더 + 필터 (권역: 전체 목록 / 그 외: 매칭 결과) */}
             <div className="mb-4 space-y-2">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-stone-500 tracking-widest uppercase">
+                <h2 className="section-label">
                   {result.region_tracks ? "이 권역의 국악 전체" : "AI 매칭 결과"}
                 </h2>
                 <span className="text-xs text-stone-400">
@@ -494,8 +524,8 @@ export default function App() {
                 ))}
               </div>
             ) : (
-              <div className="py-10 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-200">
-                <div className="text-2xl mb-2">🎵</div>
+              <div className="py-10 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-300/70">
+                <div className="font-serif text-3xl text-gold/40 mb-2 select-none">音</div>
                 <p>현재 필터 조건에 맞는 곡이 없습니다.</p>
                 <button
                   className="mt-2 text-xs text-jade underline underline-offset-2"

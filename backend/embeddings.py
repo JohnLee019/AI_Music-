@@ -39,6 +39,12 @@ KEYWORD_DIMS = [
     "판소리", "산조", "가곡", "독주",                    # 22-25 성악/독주
     "경기", "영남", "호남", "강원", "충청", "제주",      # 26-31 권역
     "아리랑", "타령",                                    # 32-33 민요 키워드
+    # 정서/분위기 축 — 트랙 mood(서정적·구성짐·애절함 등)와 장소 묘사를 잇는 브리지.
+    # 스템으로 두어 substring 매칭이 활용형(서정→서정적)을 잡게 한다.
+    "서정", "구성", "애절", "흥겨", "경쾌",              # 34-38 정서
+    "우아", "명상", "향토", "평온",                      # 39-42 정서
+    # 선법/토리 — 트랙 genre/mood ↔ 권역 프로필(regions)을 잇는 브리지.
+    "계면조", "평조", "육자배기", "토리",                # 43-46 선법
 ]
 
 
@@ -230,6 +236,17 @@ def assert_embedding_consistency() -> None:
             f"임베딩 차원 불일치: places={pdim}, regions={rdim}. "
             "generate_data.py를 한 번에 재실행해 코퍼스를 동기화하세요."
         )
+
+
+def load_poems() -> list[dict[str, Any]]:
+    """고전 시 데이터(poems.json)를 로드. 임베딩 없는 순수 데이터 — 차원 검증 대상 아님.
+
+    파일이 없으면 빈 리스트(시 기능은 선택적이라 데모를 멈추지 않는다)."""
+    try:
+        records, _ = _load_payload("poems.json", "poems")
+        return records
+    except FileNotFoundError:
+        return []
 
 
 def load_reasoning() -> dict[str, str]:

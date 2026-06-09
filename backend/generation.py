@@ -86,21 +86,30 @@ def _map_terms(values: list[str], table: dict[str, str], limit: int) -> list[str
     return out
 
 
+# 고전 시 심상(imagery_en) 최대 길이 — 프롬프트가 한쪽으로 쏠리지 않게 제한.
+_MAX_POEM_IMAGERY = 160
+
+
 def build_prompt(
     place: dict[str, Any],
     top_track: dict[str, Any],
     user_prompt: str | None = None,
+    poem: dict[str, Any] | None = None,
 ) -> str:
-    """장소·매칭곡 정보(+선택적 사용자 텍스트)를 합쳐 영어 음악 생성 프롬프트를 만든다.
+    """장소·매칭곡 정보(+선택적 사용자 텍스트·고전 시 심상)를 합쳐 영어 음악 생성 프롬프트를 만든다.
 
-    구성: [사용자 텍스트] + [장소 키워드(영어)] + [매칭곡 악기/장르/무드(영어)]
-          + [국악·instrumental·ambient 고정 앵커].
-    사용자 텍스트가 비어 있으면 장소·매칭곡만으로 구성된다.
+    구성: [사용자 텍스트] + [고전 시 심상(영어)] + [장소 키워드(영어)]
+          + [매칭곡 악기/장르/무드(영어)] + [국악·instrumental·ambient 고정 앵커].
+    사용자 텍스트·시가 비어 있으면 장소·매칭곡만으로 구성된다.
     """
     parts: list[str] = []
 
     if user_prompt and user_prompt.strip():
         parts.append(user_prompt.strip()[:_MAX_USER_PROMPT])
+
+    # 고전 시의 심상을 앞쪽에 둬 생성 분위기를 이끌게 한다(시에서 영감받은 BGM).
+    if poem and poem.get("imagery_en", "").strip():
+        parts.append("inspired by a classical Korean poem: " + poem["imagery_en"].strip()[:_MAX_POEM_IMAGERY])
 
     place_kw = _map_terms(place.get("cultural_keywords", []), _EN_KEYWORD, limit=4)
     if place_kw:
@@ -188,13 +197,14 @@ async def generate_bgm(
     place: dict[str, Any],
     top_track: dict[str, Any],
     user_prompt: str | None = None,
+    poem: dict[str, Any] | None = None,
 ) -> str | None:
     """
     BGM을 생성하고 재생 가능한 URL을 반환한다.
-    user_prompt(선택)는 장소·매칭곡 정보와 합쳐져 프롬프트가 된다.
+    user_prompt(선택)·poem(선택)은 장소·매칭곡 정보와 합쳐져 프롬프트가 된다.
     공급자 키가 모두 없거나 전부 실패하면 None (폴백은 호출부가 캐싱 음원으로 처리).
     """
-    prompt = build_prompt(place, top_track, user_prompt)
+    prompt = build_prompt(place, top_track, user_prompt, poem)
 
     el_key = os.getenv("ELEVENLABS_MUSIC_API_KEY", "")
     if el_key:

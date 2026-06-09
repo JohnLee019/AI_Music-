@@ -4,26 +4,62 @@
 
 @layer base {
   body {
-    @apply font-korean bg-hanji text-ink;
+    @apply font-korean bg-ivory text-ink;
+  }
+  /* 제목은 기본적으로 명조(세리프) — 편집·전시 느낌의 핵심 */
+  h1, h2, h3 {
+    @apply font-serif;
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl bg-white shadow-md border border-stone-200 p-5;
+    @apply rounded-2xl bg-white shadow-luxe border border-stone-200/60 p-5 transition-all duration-200;
+  }
+  /* 클릭 가능한 카드: 살짝 떠오르는 호버 */
+  .card-hover {
+    @apply hover:-translate-y-0.5 hover:shadow-luxe-lg;
   }
   .btn-primary {
     @apply rounded-full bg-jade text-white px-6 py-2 text-sm font-medium
-           hover:bg-jade/80 active:scale-95 transition-all;
+           hover:bg-jade/90 transition-all duration-200;
   }
   .btn-secondary {
     @apply rounded-full border border-jade text-jade px-6 py-2 text-sm font-medium
-           hover:bg-jade/10 active:scale-95 transition-all;
+           hover:bg-jade/5 transition-all duration-200;
+  }
+  /* 프리미엄 CTA: 먹색 바탕 + 금박 헤어라인·글자 */
+  .btn-gold {
+    @apply rounded-full bg-ink text-gold-light border border-gold/50 px-6 py-2 text-sm font-medium
+           hover:border-gold hover:text-gold transition-all duration-200;
+  }
+  .btn-ghost {
+    @apply rounded-full text-stone-500 px-5 py-2 text-sm font-medium
+           hover:text-jade transition-colors duration-200;
   }
   .badge {
     @apply inline-block rounded-full bg-stone-100 text-stone-600 text-xs px-2 py-0.5;
   }
   .badge-license {
     @apply inline-block rounded-full text-xs px-2 py-0.5 font-medium;
+  }
+  /* 소제목 레이블: 금박 스몰캡, 넓은 자간 */
+  .section-label {
+    @apply font-korean text-xs font-medium text-gold tracking-[0.2em] uppercase;
+  }
+  /* 가는 금박 구분선 */
+  .rule-gold {
+    @apply h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent;
+  }
+}
+
+@layer utilities {
+  /* 결과 등장 시 잔잔한 페이드인 */
+  @keyframes luxe-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: luxe-fade-in 0.4s ease both;
   }
 }

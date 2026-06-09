@@ -99,14 +99,16 @@ export default function PlaceSelector({ places, selected, onSelect, loading, col
 
   return (
     <section>
-      <h2 className="text-sm font-medium text-stone-500 mb-3 tracking-widest uppercase">
+      <h2 className="section-label mb-3 block">
         장소 선택
       </h2>
 
       {/* 검색 */}
       <div className="relative mb-3">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none">
-          🔍
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
+          </svg>
         </span>
         <input
           type="text"
@@ -114,7 +116,7 @@ export default function PlaceSelector({ places, selected, onSelect, loading, col
           onChange={(e) => setSearch(e.target.value)}
           placeholder="장소 이름, 유형, 지역, 키워드로 검색…"
           className="w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-stone-200 bg-white
-                     focus:outline-none focus:ring-2 focus:ring-jade/40 focus:border-jade
+                     focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold
                      placeholder:text-stone-400 transition-colors"
         />
         {search && (
@@ -165,8 +167,8 @@ export default function PlaceSelector({ places, selected, onSelect, loading, col
                 key={place.id}
                 disabled={loading}
                 onClick={() => onSelect(place)}
-                className={`card text-left transition-all hover:-translate-y-0.5 active:scale-95 overflow-hidden
-                  ${isSelected ? "ring-2 ring-jade bg-jade/5 border-jade" : "hover:border-stone-300"}
+                className={`card card-hover text-left overflow-hidden
+                  ${isSelected ? "ring-1 ring-gold bg-jade/5 border-gold" : "hover:border-stone-300"}
                   ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               >
                 <div className="relative -mx-5 -mt-5 mb-3 h-24 overflow-hidden rounded-t-2xl bg-stone-100">
@@ -187,8 +189,10 @@ export default function PlaceSelector({ places, selected, onSelect, loading, col
           })}
         </div>
       ) : (
-        <div className="py-8 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-200 px-4">
-          <div className="text-2xl mb-2">🔍</div>
+        <div className="py-8 text-center text-sm text-stone-400 rounded-xl border border-dashed border-stone-300/70 px-4">
+          <svg className="mx-auto mb-2 text-gold/40" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
+          </svg>
           <p>
             {typeFilter && search
               ? `"${search}" · ${typeFilter}`

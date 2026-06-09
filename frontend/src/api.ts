@@ -145,18 +145,58 @@ export interface BgmLicense {
   personal_use_only?: boolean;  // true=AI 생성물(개인적 사용 권장)
 }
 
+export interface Poem {
+  id: string;
+  title: string;
+  author: string;
+  era: string;
+  form: string;          // 시조 / 가사 등
+  text: string;          // " / " 로 행이 구분된 원문
+  theme_ko?: string;
+  source: string;
+  source_url?: string;
+  license: string;       // Public Domain (원문) 등
+}
+
 export interface GenerateResult {
   audio_url: string;
   generated?: boolean;       // true=AI 생성, false=캐싱본(매칭 음원) 폴백
   fallback_title?: string;
+  poem?: Poem | null;        // 이 장소에 어울리는 공개 고전 시(생성 영감)
   license?: BgmLicense;
 }
 
-export async function fetchGenerate(place_id: string, prompt?: string): Promise<GenerateResult> {
+/** 장소에 어울리는 고전 시 후보 + 추천 시 id (사용자가 직접 골라 생성). */
+export interface PoemList {
+  recommended_id: string | null;
+  poems: Poem[];  // 추천 시가 맨 앞
+}
+
+/** q(무드 프롬프트)를 주면 그 분위기와 의미가 가까운 순으로 추천·정렬한다. */
+export async function fetchPoems(place_id: string, q?: string): Promise<PoemList> {
+  const params = new URLSearchParams({ place_id });
+  if (q && q.trim()) params.set("q", q.trim());
+  const res = await fetch(`${BASE}/poems?${params.toString()}`);
+  if (!res.ok) throw new Error("고전 시 목록 로드 실패");
+  return res.json();
+}
+
+export interface GenerateOptions {
+  prompt?: string;
+  poemId?: string | null;   // 고른 시 id (usePoem=true일 때). 없으면 추천 시.
+  usePoem?: boolean;        // false=시 없이 프롬프트만으로 생성 (기본 true)
+}
+
+export async function fetchGenerate(place_id: string, opts: GenerateOptions = {}): Promise<GenerateResult> {
   const res = await fetch(`${BASE}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ place_id, prompt: prompt?.trim() || undefined }),
+    body: JSON.stringify({
+      place_id,
+      prompt: opts.prompt?.trim() || undefined,
+      poem_id: opts.poemId ?? undefined,
+      use_poem: opts.usePoem ?? true,
+    }),
   });
   if (!res.ok) throw new Error("BGM 생성 실패");
   return res.json();

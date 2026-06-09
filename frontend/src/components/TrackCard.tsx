@@ -61,7 +61,7 @@ export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = 
     >
       {/* 헤더 */}
       <div className="flex items-start gap-3">
-        <span className="text-2xl font-bold text-stone-200 leading-none select-none">
+        <span className="font-serif text-3xl text-stone-300 leading-none select-none">
           {String(rank).padStart(2, "0")}
         </span>
         <div className="flex-1 min-w-0">
@@ -108,10 +108,10 @@ export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = 
       {/* 악기 / 분위기 */}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {track.instruments.slice(0, 5).map((ins) => (
-          <span key={ins} className="badge">🎵 {ins}</span>
+          <span key={ins} className="badge">{ins}</span>
         ))}
         {track.mood.slice(0, 3).map((m) => (
-          <span key={m} className="badge bg-orange-50 text-orange-600">✦ {m}</span>
+          <span key={m} className="badge bg-gold/10 text-gold">{m}</span>
         ))}
       </div>
 
@@ -122,7 +122,7 @@ export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = 
             className="text-xs text-jade underline underline-offset-2 hover:text-jade/70"
             onClick={() => setShowScores((v) => !v)}
           >
-            {showScores ? "점수 차트 숨기기" : "📊 매칭 점수 보기"}
+            {showScores ? "점수 차트 숨기기" : "매칭 점수 보기"}
           </button>
           {showScores && (
             <>
@@ -187,37 +187,48 @@ export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = 
         />
         {playable ? (
           <button
-            className={`btn-primary text-xs px-4 py-1.5 ${
-              isPlaying ? "bg-persimmon hover:bg-persimmon/80" : ""
+            className={`btn-primary text-xs px-4 py-1.5 inline-flex items-center gap-1.5 ${
+              isPlaying ? "bg-persimmon hover:bg-persimmon/90" : ""
             }`}
             onClick={handlePlayClick}
           >
-            {isPlaying ? "⏸ 일시정지" : "▶ 재생"}
+            {isPlaying ? (
+              <>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                일시정지
+              </>
+            ) : (
+              <>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5.5v13a1 1 0 0 0 1.5.87l11-6.5a1 1 0 0 0 0-1.74l-11-6.5A1 1 0 0 0 7 5.5Z" /></svg>
+                재생
+              </>
+            )}
           </button>
         ) : (
           <span
             className="text-xs px-4 py-1.5 rounded-lg border border-stone-200 text-stone-300 cursor-not-allowed select-none"
             title="이 곡은 카탈로그에 있으나 미리듣기 음원이 아직 준비되지 않았습니다"
           >
-            ▶ 미리듣기 준비중
+            미리듣기 준비중
           </span>
         )}
 
         {/* 크리에이터 다운로드: 수익화+편집 가능 음원만 */}
         {creatorSafe ? (
           <button
-            className="text-xs px-3 py-1.5 rounded-lg border border-jade text-jade
+            className="text-xs px-3 py-1.5 rounded-lg border border-jade text-jade inline-flex items-center gap-1.5
                        hover:bg-jade hover:text-white transition-colors"
             onClick={() => setShowDownload(true)}
           >
-            ⬇ 다운로드
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" /></svg>
+            다운로드
           </button>
         ) : (
           <span
             className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 text-stone-300 cursor-not-allowed"
             title="수익화 또는 편집 조건을 충족하지 않아 크리에이터 다운로드를 제공하지 않습니다"
           >
-            ⬇ 다운로드
+            다운로드
           </span>
         )}
 

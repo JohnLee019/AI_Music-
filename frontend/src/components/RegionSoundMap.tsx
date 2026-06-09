@@ -98,14 +98,7 @@ function MapInner({ places, selected, onSelect, onRegionSelect, loading }: Props
             position={{ lat: p.lat as number, lng: p.lng as number }}
             title={p.name}
             onClick={() => { if (!loading) onSelect(p); }}
-          >
-            {selected?.id === p.id && (
-              <div className="p-2 text-xs font-bold text-ink bg-white rounded shadow-md border border-stone-200 text-center min-w-[120px]">
-                <div className="text-jade mb-0.5">{p.type}</div>
-                <div>{p.name}</div>
-              </div>
-            )}
-          </MapMarker>
+          />
         ))}
       </Map>
 

@@ -16,8 +16,10 @@ load_dotenv()
 from embeddings import (  # noqa: E402
     assert_embedding_consistency,
     cosine_similarity,
+    embed_corpus,
     embed_query,
     load_places,
+    load_poems,
     load_reasoning,
     load_regions,
     load_tracks,
@@ -26,6 +28,7 @@ from embeddings import (  # noqa: E402
 from generation import generate_bgm  # noqa: E402
 from licensing import annotate_track, filter_by_use_case  # noqa: E402
 from matching import match, select_diverse  # noqa: E402
+from poems import candidates_for_place, get_poem, poem_recipe, select_poem, to_display  # noqa: E402
 from regions import REGION_PROFILES, get_profile  # noqa: E402
 
 # ── 앱 시작 시 데이터 로드 ────────────────────────────
@@ -34,16 +37,25 @@ _tracks: list[dict[str, Any]] = []
 _reasoning: dict[str, str] = {}
 # 권역 key → 사전계산 임베딩(regions.json). 없으면 런타임 embed_query 로 폴백.
 _region_embeddings: dict[str, list[float]] = {}
+# 공개(만료) 고전 시 — BGM 생성 시 장소에 어울리는 시를 골라 심상을 프롬프트에 더한다.
+_poems: list[dict[str, Any]] = []
+# 시 id → 임베딩(시작 시 1회 계산). 사용자 무드 프롬프트와 의미 유사도로 시를 추천하는 데 쓴다.
+_poem_embeddings: dict[str, list[float]] = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _places, _tracks, _reasoning, _region_embeddings
+    global _places, _tracks, _reasoning, _region_embeddings, _poems, _poem_embeddings
     assert_embedding_consistency()  # places·tracks·regions 임베딩 차원 일치 검증 (AGENTS.md §3)
     _places = load_places()
     _tracks = load_tracks()
     _reasoning = load_reasoning()
     _region_embeddings = {r["key"]: r["embedding"] for r in load_regions() if r.get("embedding")}
+    _poems = load_poems()
+    # 시 임베딩 1회 계산(소량) — 프롬프트 기반 추천용. embed_query 와 같은 백엔드라 벡터 공간 일치.
+    if _poems:
+        vecs, _, _ = embed_corpus([poem_recipe(p) for p in _poems])
+        _poem_embeddings = {p["id"]: v for p, v in zip(_poems, vecs)}
     yield
 
 
@@ -83,6 +95,8 @@ class MatchRequest(BaseModel):
 class GenerateRequest(BaseModel):
     place_id: str
     prompt: str | None = None  # 사용자가 직접 입력하는 BGM 묘사(선택). 장소·매칭곡 정보와 합쳐짐.
+    poem_id: str | None = None  # 사용자가 고른 고전 시 id. None=추천 시 사용(use_poem=True일 때).
+    use_poem: bool = True       # False=시 없이 프롬프트(+장소)만으로 생성.
 
 
 # ── 헬퍼 ─────────────────────────────────────────────
@@ -340,6 +354,34 @@ def post_match(body: MatchRequest):
     return response
 
 
+@app.get("/api/poems")
+def get_place_poems(place_id: str, q: str | None = None):
+    """장소에 어울리는 고전 시 후보 + 추천 시 id. 사용자가 직접 골라 BGM 을 생성할 수 있게 한다.
+
+    q(사용자 무드 프롬프트)가 있으면 후보를 q 와의 의미 유사도로 정렬·추천한다
+    (없으면 장소·권역 기반 결정론적 추천). poems[0] 이 추천 시.
+    각 항목은 표시용 필드(원문 text 포함)라 이름 클릭 시 추가 요청 없이 본문을 펼친다."""
+    place = _get_place(place_id)
+    cands = candidates_for_place(place, _poems)
+    query = (q or "").strip()
+
+    if query:
+        # 무드 프롬프트와 의미가 가까운 순으로 추천(권역 후보 안에서). 의미 매칭은 HF 임베딩이 핵심.
+        qvec = embed_query(query)
+        ordered = sorted(
+            cands,
+            key=lambda p: cosine_similarity(qvec, _poem_embeddings.get(p.get("id", ""), [])),
+            reverse=True,
+        )
+        rec_id = ordered[0].get("id") if ordered else None
+    else:
+        rec = select_poem(place, _poems)
+        rec_id = rec.get("id") if rec else None
+        ordered = sorted(cands, key=lambda p: p.get("id") != rec_id)  # 추천 시를 맨 앞으로
+
+    return {"recommended_id": rec_id, "poems": [to_display(p) for p in ordered]}
+
+
 @app.post("/api/generate")
 async def post_generate(body: GenerateRequest):
     """장소에 맞는 BGM 생성 (보조 기능). 생성 불가 시 실제 재생 가능한 최적 매칭 음원으로 폴백."""
@@ -351,7 +393,15 @@ async def post_generate(body: GenerateRequest):
     playable = [t for t in derivable if _audio_available(t)]
     top_track = (playable or derivable or ranked or [{}])[0]
 
-    audio_url = await generate_bgm(place, top_track, body.prompt)
+    # 고전 시 결정: use_poem=False 면 시 없이(프롬프트만), poem_id 가 있으면 그 시,
+    # 없으면 추천 시. 사용자가 직접 고른 시의 심상을 프롬프트에 더하고 화면에도 보여준다.
+    if body.use_poem:
+        poem = get_poem(body.poem_id, _poems) if body.poem_id else select_poem(place, _poems)
+    else:
+        poem = None
+    poem_payload = to_display(poem)
+
+    audio_url = await generate_bgm(place, top_track, body.prompt, poem=poem)
     if audio_url:
         # AI 생성물은 CC/공공누리가 아니라 ElevenLabs 약관 적용. 사용자는 출처표시 후
         # 개인적 사용만(상업 권리는 플랜 보유자에게 귀속) — 프론트에서 복사용 크레딧 제공.
@@ -359,6 +409,7 @@ async def post_generate(body: GenerateRequest):
             "audio_url": audio_url,
             "generated": True,
             "prompt_used": True,
+            "poem": poem_payload,  # 이 시에서 영감받아 생성됨(프론트 문구로 구분)
             "license": {
                 "license_type": "AI 생성 (ElevenLabs Music)",
                 "source": "ElevenLabs Music",
@@ -377,6 +428,7 @@ async def post_generate(body: GenerateRequest):
         "audio_url": top_track.get("audio_path", ""),
         "generated": False,
         "fallback_title": fb_title,
+        "poem": poem_payload,  # 생성 실패(폴백)여도 이 장소와 어울리는 고전 시는 함께 보여준다
         "license": {
             "license_type": top_track.get("license_type", ""),
             "source": top_track.get("source", ""),
