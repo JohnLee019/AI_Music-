@@ -18,6 +18,16 @@ const FALLBACK_IMAGE: Record<string, string> = {
   전통시장: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=600&q=80",
 };
 
+// Set of images used across the application for the dynamic banner (using larger widths for hero resolution)
+const HERO_IMAGES = [
+  "/w7weugnjtvmxk7t4hbc6.jpg",
+  "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-160162161407e-12f0b9ca0448?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1505673542670-a5e3ff5b14a3?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1608976478546-d249d375369f?auto=format&fit=crop&w=1200&q=80"
+];
+
 export default function App() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selected, setSelected] = useState<Place | null>(null);
@@ -26,6 +36,15 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<HTMLAudioElement | null>(null);
   const [isPlaceCollapsed, setIsPlaceCollapsed] = useState(false);
+  const [currentHeroImgIdx, setCurrentHeroImgIdx] = useState(0);
+
+  // Dynamic image transition for the Hero banner (every 3 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroImgIdx((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ── 트랙 필터 상태 ─────────────────────────────────
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
@@ -197,13 +216,18 @@ export default function App() {
       </header>
 
       {/* 히어로 — 전통 사진 위 먹색 그라데이션, 명조 헤드라인 */}
-      <section className="relative overflow-hidden bg-ink text-ivory">
-        <img
-          src="/w7weugnjtvmxk7t4hbc6.jpg"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover opacity-75 brightness-105"
-        />
+      <section className="relative overflow-hidden bg-ink text-ivory h-[280px] sm:h-[350px]">
+        {HERO_IMAGES.map((src, index) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out brightness-105 ${
+              index === currentHeroImgIdx ? "opacity-75" : "opacity-0"
+            }`}
+          />
+        ))}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/45 to-ink/15" />
         <div className="relative max-w-[1600px] mx-auto px-6 py-20 sm:py-28">
           <p className="section-label text-gold-light mb-4">장소의 소리를 찾다</p>
