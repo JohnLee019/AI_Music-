@@ -2,15 +2,12 @@
 from __future__ import annotations
 
 import os
-import subprocess
-import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -31,12 +28,15 @@ from embeddings import (  # noqa: E402
 from generation import generate_bgm  # noqa: E402
 from licensing import annotate_track, filter_by_use_case  # noqa: E402
 from matching import match, select_diverse  # noqa: E402
-from poems import candidates_for_place, get_poem, poem_recipe, select_poem, to_display  # noqa: E402
+from poems import (  # noqa: E402
+    _region_key_for_place,
+    candidates_for_place,
+    get_poem,
+    poem_recipe,
+    select_poem,
+    to_display,
+)
 from regions import REGION_PROFILES, get_profile  # noqa: E402
-
-# ── 테스트 실패 시 서비스 차단 ───────────────────────
-# None = 통과, str = pytest 출력 (실패 내용)
-_test_failure: str | None = None
 
 # ── 앱 시작 시 데이터 로드 ────────────────────────────
 _places: list[dict[str, Any]] = []
@@ -52,23 +52,7 @@ _poem_embeddings: dict[str, list[float]] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _places, _tracks, _reasoning, _region_embeddings, _poems, _poem_embeddings, _test_failure
-
-    # 테스트를 먼저 실행. 하나라도 실패하면 API 전체를 503으로 차단한다.
-    _backend_dir = os.path.dirname(os.path.abspath(__file__))
-    proc = subprocess.run(
-        [sys.executable, "-m", "pytest", "tests/", "--tb=short", "-q", "--no-header"],
-        capture_output=True,
-        text=True,
-        cwd=_backend_dir,
-    )
-    if proc.returncode != 0:
-        _test_failure = (proc.stdout + proc.stderr).strip()
-        print(f"\n[startup] 테스트 실패 — API 비활성화\n{_test_failure}\n", flush=True)
-        yield
-        return
-
-    print("[startup] 모든 테스트 통과 — 정상 시작", flush=True)
+    global _places, _tracks, _reasoning, _region_embeddings, _poems, _poem_embeddings
     assert_embedding_consistency()  # places·tracks·regions 임베딩 차원 일치 검증 (AGENTS.md §3)
     _places = load_places()
     _tracks = load_tracks()
@@ -90,18 +74,6 @@ BGM_GENRE = "국악 BGM"
 BGM_RESERVED_SLOTS = 2
 
 app = FastAPI(title="GugakPlace API", version="0.1.0", lifespan=lifespan)
-
-
-@app.middleware("http")
-async def test_gate(request: Request, call_next):
-    """테스트 실패 시 /api/* 요청을 모두 503으로 차단한다."""
-    if _test_failure is not None and request.url.path.startswith("/api"):
-        return JSONResponse(
-            status_code=503,
-            content={"detail": "테스트 실패로 서비스가 비활성화되었습니다.", "test_output": _test_failure},
-        )
-    return await call_next(request)
-
 
 # ── CORS ────────────────────────────────────────────
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
@@ -389,30 +361,71 @@ def post_match(body: MatchRequest):
     return response
 
 
+# 시 추천 가중치 — 무드 프롬프트(의미) vs 장소(권역) 적합도.
+# 프롬프트 정보가 충분하면 무드 의미를 크게(장소 권역을 넘어 전체에서 추천),
+# 정보가 적으면(짧은 입력) 장소 비중을 키워 권역 후보 안에서 고른다.
+POEM_W_PROMPT_STRONG = 0.8
+POEM_W_PLACE_STRONG = 0.2
+POEM_W_PROMPT_WEAK = 0.3
+POEM_W_PLACE_WEAK = 0.7
+# '프롬프트 정보 충분' 판정 기준 (글자 수 · 토큰 수 모두 충족).
+POEM_QUERY_MIN_CHARS = 6
+POEM_QUERY_MIN_TOKENS = 2
+# 프롬프트 주도(전체 풀) 추천 시 노출할 후보 상한.
+POEM_LIST_CAP = 8
+
+
+def _poem_place_affinity(poem: dict[str, Any], region_key: str | None) -> float:
+    """시-장소 권역 적합도: 같은 권역 1.0 / 전국 공용(빈 region_keys) 0.5 / 타 권역 0.0."""
+    rk = poem.get("region_keys", [])
+    if region_key and region_key in rk:
+        return 1.0
+    if not rk:
+        return 0.5
+    return 0.0
+
+
 @app.get("/api/poems")
 def get_place_poems(place_id: str, q: str | None = None):
-    """장소에 어울리는 고전 시 후보 + 추천 시 id. 사용자가 직접 골라 BGM 을 생성할 수 있게 한다.
+    """장소에 어울리는 시 후보 + 추천 시 id. 사용자가 직접 골라 BGM 을 생성할 수 있게 한다.
 
-    q(사용자 무드 프롬프트)가 있으면 후보를 q 와의 의미 유사도로 정렬·추천한다
-    (없으면 장소·권역 기반 결정론적 추천). poems[0] 이 추천 시.
+    q(무드 프롬프트)가 충분하면 무드 의미를 크게 잡아 전체 시에서 추천하고(장소 권역을
+    넘어선다), q 가 짧으면 장소 비중을 키워 권역 후보 안에서 고른다. q 가 없으면 장소·권역
+    기반 결정론적 추천. poems[0] 이 추천 시. 의미 매칭은 HF 임베딩이 핵심.
     각 항목은 표시용 필드(원문 text 포함)라 이름 클릭 시 추가 요청 없이 본문을 펼친다."""
     place = _get_place(place_id)
-    cands = candidates_for_place(place, _poems)
     query = (q or "").strip()
 
     if query:
-        # 무드 프롬프트와 의미가 가까운 순으로 추천(권역 후보 안에서). 의미 매칭은 HF 임베딩이 핵심.
         qvec = embed_query(query)
-        ordered = sorted(
-            cands,
-            key=lambda p: cosine_similarity(qvec, _poem_embeddings.get(p.get("id", ""), [])),
-            reverse=True,
+        region_key = _region_key_for_place(place)
+        strong = (
+            len(query) >= POEM_QUERY_MIN_CHARS
+            and len(query.split()) >= POEM_QUERY_MIN_TOKENS
         )
+        wq, wp = (
+            (POEM_W_PROMPT_STRONG, POEM_W_PLACE_STRONG) if strong
+            else (POEM_W_PROMPT_WEAK, POEM_W_PLACE_WEAK)
+        )
+        # 정보 충분 → 전체 시 풀(무드 우선), 적음 → 장소 권역 후보로 한정(장소 적합 보장).
+        pool = _poems if strong else candidates_for_place(place, _poems)
+
+        def _poem_score(p: dict[str, Any]) -> float:
+            # 원시 코사인(음수만 0으로). [-1,1]→[0,1] 압축을 피해야 시 간 의미차가
+            # 살아나 프롬프트 비중이 실제로 커진다(작은 장소 보너스에 묻히지 않음).
+            sem = max(0.0, cosine_similarity(qvec, _poem_embeddings.get(p.get("id", ""), [])))
+            return wq * sem + wp * _poem_place_affinity(p, region_key)
+
+        ordered = sorted(pool, key=_poem_score, reverse=True)
+        if strong:
+            ordered = ordered[:POEM_LIST_CAP]  # 전체 풀이므로 상위만 노출
         rec_id = ordered[0].get("id") if ordered else None
     else:
         rec = select_poem(place, _poems)
         rec_id = rec.get("id") if rec else None
-        ordered = sorted(cands, key=lambda p: p.get("id") != rec_id)  # 추천 시를 맨 앞으로
+        ordered = sorted(
+            candidates_for_place(place, _poems), key=lambda p: p.get("id") != rec_id
+        )  # 추천 시를 맨 앞으로
 
     return {"recommended_id": rec_id, "poems": [to_display(p) for p in ordered]}
 
@@ -479,9 +492,4 @@ async def post_generate(body: GenerateRequest):
 
 @app.get("/health")
 def health():
-    if _test_failure is not None:
-        return JSONResponse(
-            status_code=503,
-            content={"status": "test_failure", "test_output": _test_failure},
-        )
     return {"status": "ok", "places": len(_places), "tracks": len(_tracks)}

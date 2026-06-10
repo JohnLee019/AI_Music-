@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Place } from "../api";
 import { fetchPlaceSuggestions } from "../api";
 
@@ -16,6 +16,8 @@ const TYPE_ICON: Record<string, string> = {
   민속마을: "🏘️",
   한옥마을: "🏠",
   전통시장: "🏪",
+  서원: "🏛️",      // 강학 공간(서원) — 기둥 있는 학문의 전당
+  전통명소: "🏞️",  // 고분·유적·명승 등 전통 명소
 };
 
 const FALLBACK_IMAGE: Record<string, string> = {
@@ -36,19 +38,87 @@ export default function PlaceSelector({ places, selected, onSelect, loading, col
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
-  const types = [...new Set(places.map((p) => p.type))];
+  // 위치 목록 정렬 로직:
+  // 1. 히어로 장소 4곳은 원래 순서 유지
+  // 2. 나머지는 장소 키워드(type) 별로 묶고 지정된 우선순위 및 가나다순으로 정렬
+  const sortedPlaces = useMemo(() => {
+    const heroIds = ["gyeongbokgung", "hahoe", "jeonju_hanok", "namdaemun"];
+    
+    // 히어로 장소 필터링 및 원래 순서 유지
+    const heroPlaces: Place[] = [];
+    heroIds.forEach((id) => {
+      const found = places.find((p) => p.id === id);
+      if (found) heroPlaces.push(found);
+    });
 
-  const filtered = places.filter((p) => {
-    const matchesType = !typeFilter || p.type === typeFilter;
-    const q = search.trim().toLowerCase();
-    const matchesSearch =
-      !q ||
-      p.name.toLowerCase().includes(q) ||
-      p.type.toLowerCase().includes(q) ||
-      p.region.toLowerCase().includes(q) ||
-      p.cultural_keywords.some((kw) => kw.toLowerCase().includes(q));
-    return matchesType && matchesSearch;
-  });
+    // 나머지 장소들
+    const otherPlaces = places.filter((p) => !heroIds.includes(p.id));
+
+    // 나머지 장소들 타입별 그룹화
+    const groups: Record<string, Place[]> = {};
+    otherPlaces.forEach((p) => {
+      if (!groups[p.type]) {
+        groups[p.type] = [];
+      }
+      groups[p.type].push(p);
+    });
+
+    // 각 그룹 내에서 장소 이름을 가나다순 정렬
+    Object.keys(groups).forEach((type) => {
+      groups[type].sort((a, b) => a.name.localeCompare(b.name, "ko"));
+    });
+
+    // 타입별 우선순위 순서 (한옥마을이 궁궐보다 먼저 나오게 조정)
+    const TYPE_ORDER = ["한옥마을", "민속마을", "궁궐", "사찰", "서원", "전통시장", "전통명소"];
+    const getOrderIndex = (t: string) => {
+      const idx = TYPE_ORDER.indexOf(t);
+      return idx === -1 ? 999 : idx;
+    };
+
+    // 그룹(type) 자체를 우선순위 및 가나다순으로 정렬하여 평탄화
+    const sortedTypes = Object.keys(groups).sort((a, b) => {
+      const idxA = getOrderIndex(a);
+      const idxB = getOrderIndex(b);
+      if (idxA !== idxB) return idxA - idxB;
+      return a.localeCompare(b, "ko");
+    });
+    
+    const sortedOtherPlaces: Place[] = [];
+    sortedTypes.forEach((type) => {
+      sortedOtherPlaces.push(...groups[type]);
+    });
+
+    return [...heroPlaces, ...sortedOtherPlaces];
+  }, [places]);
+
+  const types = useMemo(() => {
+    const TYPE_ORDER = ["한옥마을", "민속마을", "궁궐", "사찰", "서원", "전통시장", "전통명소"];
+    const getOrderIndex = (t: string) => {
+      const idx = TYPE_ORDER.indexOf(t);
+      return idx === -1 ? 999 : idx;
+    };
+    
+    return [...new Set(places.map((p) => p.type))].sort((a, b) => {
+      const idxA = getOrderIndex(a);
+      const idxB = getOrderIndex(b);
+      if (idxA !== idxB) return idxA - idxB;
+      return a.localeCompare(b, "ko");
+    });
+  }, [places]);
+
+  const filtered = useMemo(() => {
+    return sortedPlaces.filter((p) => {
+      const matchesType = !typeFilter || p.type === typeFilter;
+      const q = search.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.type.toLowerCase().includes(q) ||
+        p.region.toLowerCase().includes(q) ||
+        p.cultural_keywords.some((kw) => kw.toLowerCase().includes(q));
+      return matchesType && matchesSearch;
+    });
+  }, [sortedPlaces, typeFilter, search]);
 
   const hasActiveFilter = search.trim() !== "" || typeFilter !== null;
 
