@@ -2,22 +2,6 @@
 
 const BASE = "/api";
 
-export class TestFailureError extends Error {
-  testOutput: string;
-  constructor(testOutput: string) {
-    super("테스트 실패로 서비스가 비활성화되었습니다.");
-    this.name = "TestFailureError";
-    this.testOutput = testOutput;
-  }
-}
-
-async function checkTestGate(res: Response): Promise<void> {
-  if (res.status === 503) {
-    const body = await res.json().catch(() => ({}));
-    throw new TestFailureError(body.test_output ?? "알 수 없는 테스트 오류");
-  }
-}
-
 export interface Place {
   id: string;
   name: string;
@@ -86,7 +70,6 @@ export interface MatchResult {
 
 export async function fetchPlaces(): Promise<Place[]> {
   const res = await fetch(`${BASE}/places`);
-  await checkTestGate(res);
   if (!res.ok) throw new Error("장소 목록 로드 실패");
   return res.json();
 }
@@ -189,9 +172,17 @@ export interface PoemList {
   poems: Poem[];  // 추천 시가 맨 앞
 }
 
+/** BGM 생성·시 추천 대상 — 실제 장소(placeId) 또는 소리 지도 권역(region key) 중 하나. */
+export interface GenerateTarget {
+  placeId?: string;
+  region?: string;
+}
+
 /** q(무드 프롬프트)를 주면 그 분위기와 의미가 가까운 순으로 추천·정렬한다. */
-export async function fetchPoems(place_id: string, q?: string): Promise<PoemList> {
-  const params = new URLSearchParams({ place_id });
+export async function fetchPoems(target: GenerateTarget, q?: string): Promise<PoemList> {
+  const params = new URLSearchParams();
+  if (target.placeId) params.set("place_id", target.placeId);
+  if (target.region) params.set("region", target.region);
   if (q && q.trim()) params.set("q", q.trim());
   const res = await fetch(`${BASE}/poems?${params.toString()}`);
   if (!res.ok) throw new Error("고전 시 목록 로드 실패");
@@ -204,12 +195,13 @@ export interface GenerateOptions {
   usePoem?: boolean;        // false=시 없이 프롬프트만으로 생성 (기본 true)
 }
 
-export async function fetchGenerate(place_id: string, opts: GenerateOptions = {}): Promise<GenerateResult> {
+export async function fetchGenerate(target: GenerateTarget, opts: GenerateOptions = {}): Promise<GenerateResult> {
   const res = await fetch(`${BASE}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      place_id,
+      place_id: target.placeId,
+      region: target.region,
       prompt: opts.prompt?.trim() || undefined,
       poem_id: opts.poemId ?? undefined,
       use_poem: opts.usePoem ?? true,

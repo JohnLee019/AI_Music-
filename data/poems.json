@@ -1,5 +1,5 @@
 {
-  "_note": "전근대(원문 저작권 만료) 고전 시가만 수록. 현대 편집·주석·번역본이 아닌 공개 원문을 사용한다. region_keys 는 regions.py 의 권역 key(sudo_chung·gangwon·yeongnam·honam·jeju), 빈 배열은 전국 공용. imagery_en 은 BGM 생성 프롬프트에 더해지는 영어 심상.",
+  "_note": "공개(저작권 만료) 시 수록. 고전 시가(현대 철자 표기 원문) + 저작권 만료 근대시. 근대시 출처는 한국저작권위원회 공유마당 어문 만료저작물(source_url, menuNo=200019). region_keys 는 regions.py 권역 key(sudo_chung·gangwon·yeongnam·honam·jeju), 빈 배열은 전국 공용. imagery_en 은 BGM 생성 프롬프트에 더해지는 영어 심상.",
   "poems": [
     {
       "id": "hwangjini-dongjit",
@@ -9,8 +9,12 @@
       "form": "시조",
       "text": "동짓달 기나긴 밤을 한 허리를 베어 내어 / 춘풍 이불 아래 서리서리 넣었다가 / 어론 님 오신 날 밤이어든 굽이굽이 펴리라",
       "theme_ko": "기다림·그리움·겨울밤",
-      "region_keys": ["sudo_chung"],
-      "place_types": ["한옥마을"],
+      "region_keys": [
+        "sudo_chung"
+      ],
+      "place_types": [
+        "한옥마을"
+      ],
       "imagery_en": "long midwinter night, quiet yearning, longing for a distant love, stillness, a warm quilt and spring breeze kept for a returning lover",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -24,24 +28,14 @@
       "form": "연시조",
       "text": "강호에 봄이 드니 미친 흥이 절로 난다 / 탁료계변에 금린어가 안주로다 / 이 몸이 한가하옴도 역군은이샷다",
       "theme_ko": "강호·봄·한가로운 흥취",
-      "region_keys": ["sudo_chung"],
-      "place_types": ["서원", "한옥마을"],
+      "region_keys": [
+        "sudo_chung"
+      ],
+      "place_types": [
+        "서원",
+        "한옥마을"
+      ],
       "imagery_en": "spring arriving over rivers and lakes, idle delight, makgeolli by a stream, glinting fish, peaceful gratitude",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "seongsammun-loyal-pine",
-      "title": "이 몸이 죽어 가서",
-      "author": "성삼문",
-      "era": "조선 15세기",
-      "form": "시조",
-      "text": "이 몸이 죽어 가서 무엇이 될꼬 하니 / 봉래산 제일봉에 낙락장송 되었다가 / 백설이 만건곤할 제 독야청청하리라",
-      "theme_ko": "충절·지조·홀로 푸른 소나무",
-      "region_keys": ["sudo_chung"],
-      "place_types": ["궁궐", "서원"],
-      "imagery_en": "unwavering loyalty, a lone towering pine on the highest peak, snow filling heaven and earth, solitary evergreen resolve",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -54,8 +48,12 @@
       "form": "시조",
       "text": "이런들 어떠하며 저런들 어떠하리 / 만수산 드렁칡이 얽어진들 어떠하리 / 우리도 이같이 얽어져 백 년까지 누리리라",
       "theme_ko": "화합·처세·현세의 여유",
-      "region_keys": ["sudo_chung"],
-      "place_types": ["궁궐"],
+      "region_keys": [
+        "sudo_chung"
+      ],
+      "place_types": [
+        "궁궐"
+      ],
       "imagery_en": "easy worldly harmony, intertwined arrowroot vines on a green hill, a relaxed hundred-year contentment",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -69,8 +67,12 @@
       "form": "가사",
       "text": "강호에 병이 깊어 죽림에 누웠더니 / 관동 팔백 리에 방면을 맡기시니 / 어와 성은이야 가지록 망극하다",
       "theme_ko": "관동 유람·산수·여정",
-      "region_keys": ["gangwon"],
-      "place_types": ["궁궐"],
+      "region_keys": [
+        "gangwon"
+      ],
+      "place_types": [
+        "궁궐"
+      ],
       "imagery_en": "the eight hundred li of Gwandong, a journey through Geumgang peaks and pavilions toward the East Sea, awe before grand mountains",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -84,7 +86,9 @@
       "form": "시조",
       "text": "태산이 높다 하되 하늘 아래 뫼이로다 / 오르고 또 오르면 못 오를 리 없건마는 / 사람이 제 아니 오르고 뫼만 높다 하더라",
       "theme_ko": "노력·의지·높은 산",
-      "region_keys": ["gangwon"],
+      "region_keys": [
+        "gangwon"
+      ],
       "place_types": [],
       "imagery_en": "a great mountain under heaven, climbing and climbing again, steady perseverance, mist over high ridges",
       "source": "고전시가 (저작권 만료 공개 원문)",
@@ -99,8 +103,13 @@
       "form": "시조",
       "text": "이 몸이 죽고 죽어 일백 번 고쳐 죽어 / 백골이 진토되어 넋이라도 있고 없고 / 임 향한 일편단심이야 가실 줄이 있으랴",
       "theme_ko": "충절·일편단심",
-      "region_keys": ["yeongnam"],
-      "place_types": ["서원", "궁궐"],
+      "region_keys": [
+        "yeongnam"
+      ],
+      "place_types": [
+        "서원",
+        "궁궐"
+      ],
       "imagery_en": "dying a hundred deaths, bones turning to dust, an undying single-hearted devotion toward one's lord",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -114,24 +123,13 @@
       "form": "연시조",
       "text": "청산은 어찌하여 만고에 푸르르며 / 유수는 어찌하여 주야에 그치지 아니하는고 / 우리도 그치지 말아 만고상청하리라",
       "theme_ko": "자연·항상됨·수양",
-      "region_keys": ["yeongnam"],
-      "place_types": ["서원"],
+      "region_keys": [
+        "yeongnam"
+      ],
+      "place_types": [
+        "서원"
+      ],
       "imagery_en": "ever-green mountains through all ages, water flowing ceaselessly day and night, constancy, scholarly serenity",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "yihwang-dosan-goin",
-      "title": "도산십이곡 — 고인도 날 못 보고",
-      "author": "이황",
-      "era": "조선 16세기",
-      "form": "연시조",
-      "text": "고인도 날 못 보고 나도 고인 못 봬 / 고인을 못 봬도 녀던 길 앞에 있네 / 녀던 길 앞에 있거든 아니 녀고 어찌할꼬",
-      "theme_ko": "학문의 길·옛 성현",
-      "region_keys": ["yeongnam"],
-      "place_types": ["서원"],
-      "imagery_en": "though I cannot meet the ancients, the path they walked lies open before me, quiet devotion to the way of learning",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -144,24 +142,11 @@
       "form": "연시조",
       "text": "이 중에 시름없으니 어부의 생애로다 / 일엽편주를 만경파에 띄워 두고 / 인세를 다 잊었거니 날 가는 줄을 알랴",
       "theme_ko": "어부·강호·세상 잊기",
-      "region_keys": ["yeongnam"],
+      "region_keys": [
+        "yeongnam"
+      ],
       "place_types": [],
       "imagery_en": "a carefree fisherman's life, a single leaf-boat on boundless waves, forgetting the world and the passing of days",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "bakillo-johongsi",
-      "title": "조홍시가",
-      "author": "박인로",
-      "era": "조선 17세기",
-      "form": "시조",
-      "text": "반중 조홍감이 고와도 보이나다 / 유자 아니라도 품음 직하다마는 / 품어 가 반길 이 없을새 글로 설워하나이다",
-      "theme_ko": "효·그리움·돌아가신 부모",
-      "region_keys": ["yeongnam"],
-      "place_types": ["한옥마을"],
-      "imagery_en": "a beautiful ripe persimmon on a tray, filial longing, the quiet grief that no parent remains to receive it",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -174,8 +159,13 @@
       "form": "연시조",
       "text": "구름 빛이 좋다 하나 검기를 자주 한다 / 바람 소리 맑다 하나 그칠 적이 하노매라 / 좋고도 그칠 뉘 없기는 물뿐인가 하노라",
       "theme_ko": "자연의 벗·맑고 그치지 않는 물",
-      "region_keys": ["honam"],
-      "place_types": ["서원", "한옥마을"],
+      "region_keys": [
+        "honam"
+      ],
+      "place_types": [
+        "서원",
+        "한옥마을"
+      ],
       "imagery_en": "clouds darken and winds fall silent, but clear water never ceases, serene friendship with nature",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -189,24 +179,12 @@
       "form": "연시조",
       "text": "우는 것이 뻐꾸기가 푸른 것이 버들숲가 / 이어라 이어라 / 어촌 두어 집이 냇속에 들락날락 / 지국총 지국총 어사와 / 인간을 돌아보니 멀수록 더욱 좋다",
       "theme_ko": "어촌·봄·뱃노래",
-      "region_keys": ["honam", "jeju"],
+      "region_keys": [
+        "honam",
+        "jeju"
+      ],
       "place_types": [],
       "imagery_en": "a cuckoo calling over green willow groves, a misty fishing village by the water, oars creaking, the rhythmic boat-song of the tides",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "jeongcheol-samiingok",
-      "title": "사미인곡",
-      "author": "정철",
-      "era": "조선 16세기",
-      "form": "가사",
-      "text": "이 몸 삼기실 제 임을 좇아 삼기시니 / 한생 연분이며 하늘 모를 일이런가 / 나 하나 젊어 있고 임 하나 날 괴시니 / 이 마음 이 사랑 견줄 데 노여 없다",
-      "theme_ko": "연군·그리움·지극한 사랑",
-      "region_keys": ["honam"],
-      "place_types": ["한옥마을"],
-      "imagery_en": "a fated bond from birth, a devotion like a wife longing for her lord, an incomparable, aching tenderness",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -219,8 +197,13 @@
       "form": "시조",
       "text": "십 년을 경영하여 초려 삼간 지어 내니 / 나 한 간 달 한 간에 청풍 한 간 맡겨 두고 / 강산은 들일 데 없으니 둘러 두고 보리라",
       "theme_ko": "안빈낙도·달과 바람과 사는 집",
-      "region_keys": ["honam"],
-      "place_types": ["한옥마을", "서원"],
+      "region_keys": [
+        "honam"
+      ],
+      "place_types": [
+        "한옥마을",
+        "서원"
+      ],
       "imagery_en": "a humble three-room thatched hut, sharing rooms with the moon and the clear breeze, rivers and mountains as one's folding screen",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
@@ -234,7 +217,9 @@
       "form": "시조",
       "text": "청산리 벽계수야 수이 감을 자랑 마라 / 일도창해하면 다시 오기 어려워라 / 명월이 만공산하니 쉬어 간들 어떠리",
       "theme_ko": "무상·바다로 가는 물·풍류",
-      "region_keys": ["jeju"],
+      "region_keys": [
+        "jeju"
+      ],
       "place_types": [],
       "imagery_en": "a clear blue stream rushing to the open sea, fleeting time that never returns, bright moonlight flooding empty mountains, an invitation to pause",
       "source": "고전시가 (저작권 만료 공개 원문)",
@@ -265,23 +250,11 @@
       "text": "오백 년 도읍지를 필마로 돌아드니 / 산천은 의구하되 인걸은 간 데 없다 / 어즈버 태평연월이 꿈이런가 하노라",
       "theme_ko": "회고·무상·옛 도읍",
       "region_keys": [],
-      "place_types": ["궁궐", "민속마을"],
+      "place_types": [
+        "궁궐",
+        "민속마을"
+      ],
       "imagery_en": "an old five-century capital revisited on a lone horse, mountains unchanged but the great ones gone, a peaceful age fading like a dream",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "yisaek-baekseol",
-      "title": "백설이 잦아진 골에",
-      "author": "이색",
-      "era": "고려 말 14세기",
-      "form": "시조",
-      "text": "백설이 잦아진 골에 구름이 머흘레라 / 반가운 매화는 어느 곳에 피었는고 / 석양에 홀로 서 있어 갈 곳 몰라 하노라",
-      "theme_ko": "우국·기다림·황혼",
-      "region_keys": [],
-      "place_types": [],
-      "imagery_en": "melting snow in a valley, gathering clouds, somewhere a longed-for plum blossom, standing alone at sunset unsure where to go",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -297,21 +270,6 @@
       "region_keys": [],
       "place_types": [],
       "imagery_en": "warding off old age with a stick and a thorn, white hair arriving by a shortcut anyway, a wry and gentle resignation",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
-      "id": "jeongmongju-mother-crow",
-      "title": "까마귀 싸우는 골에",
-      "author": "정몽주의 어머니(전언)",
-      "era": "고려 말 14세기",
-      "form": "시조",
-      "text": "까마귀 싸우는 골에 백로야 가지 마라 / 성난 까마귀 흰빛을 새오나니 / 청강에 좋이 씻은 몸을 더럽힐까 하노라",
-      "theme_ko": "경계·지조·결백",
-      "region_keys": [],
-      "place_types": [],
-      "imagery_en": "a white heron warned away from a valley of quarreling crows, keeping a body cleanly washed in a clear river unstained",
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
@@ -347,21 +305,6 @@
       "license": "Public Domain (원문)"
     },
     {
-      "id": "hwangjini-eojyeo",
-      "title": "어져 내 일이야",
-      "author": "황진이",
-      "era": "조선 16세기",
-      "form": "시조",
-      "text": "어져 내 일이야 그릴 줄을 모르더냐 / 있으라 하더면 가랴마는 제 구태여 / 보내고 그리는 정은 나도 몰라 하노라",
-      "theme_ko": "이별의 회한·그리움",
-      "region_keys": [],
-      "place_types": [],
-      "imagery_en": "regret after a farewell, a love let go and then longed for, a tender confusion of the heart",
-      "source": "고전시가 (저작권 만료 공개 원문)",
-      "source_url": "",
-      "license": "Public Domain (원문)"
-    },
-    {
       "id": "hwangjini-san",
       "title": "산은 옛 산이로되",
       "author": "황진이",
@@ -375,6 +318,198 @@
       "source": "고전시가 (저작권 만료 공개 원문)",
       "source_url": "",
       "license": "Public Domain (원문)"
+    },
+    {
+      "id": "kimsowol-jindallae",
+      "title": "진달래꽃",
+      "author": "김소월",
+      "era": "근대 1922",
+      "form": "근대시",
+      "text": "나 보기가 역겨워 / 가실 때에는 / 말없이 고이 보내 드리오리다 / 영변(寧邊)에 약산(藥山) / 진달래꽃 / 아름 따다 가실 길에 뿌리오리다 / 가시는 걸음걸음 / 놓인 그 꽃을 / 사뿐히 즈려밟고 가시옵소서 / 나 보기가 역겨워 / 가실 때에는 / 죽어도 아니 눈물 흘리오리다",
+      "theme_ko": "이별·체념·인고의 사랑",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "a quiet self-sacrificing farewell, azaleas of Yaksan in Yeongbyeon strewn on the departing path, sorrow held back without tears, restrained tender devotion",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9000320&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimsowol-sanyuhwa",
+      "title": "산유화",
+      "author": "김소월",
+      "era": "근대 1925",
+      "form": "근대시",
+      "text": "산에는 꽃 피네 / 꽃이 피네 / 갈 봄 여름 없이 / 꽃이 피네 / 산에 / 산에 / 피는 꽃은 / 저만치 혼자서 피어 있네 / 산에서 우는 작은 새여 / 꽃이 좋아 / 산에서 / 사노라네 / 산에는 꽃 지네 / 꽃이 지네 / 갈 봄 여름 없이 / 꽃이 지네",
+      "theme_ko": "자연의 순환·홀로 피고 지는 꽃·고요한 외로움",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "mountain flowers blooming and falling through every season, a small bird singing alone on the slope, serene solitude, the quiet cycle of nature, gentle melancholy",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=12198105&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimsowol-meonhuil",
+      "title": "먼 후일",
+      "author": "김소월",
+      "era": "근대 1925",
+      "form": "근대시",
+      "text": "먼 훗날 당신이 찾으시면 / 그때에 내 말이 '잊었노라' / 당신이 속으로 나무라면 / '무척 그리다가 잊었노라' / 그래도 당신이 나무라면 / '믿기지 않아서 잊었노라' / 오늘도 어제도 아니 잊고 / 먼 훗날 그때에 '잊었노라'",
+      "theme_ko": "이별·그리움·반어적 체념",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "a vow of having 'forgotten,' a deep longing disguised as forgetting, quiet ache deferred to some far-off day",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=12198105&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimsowol-eommaya",
+      "title": "엄마야 누나야",
+      "author": "김소월",
+      "era": "근대 1925",
+      "form": "근대시",
+      "text": "엄마야 누나야 강변 살자 / 뜰에는 반짝이는 금모래빛 / 뒷문 밖에는 갈잎의 노래 / 엄마야 누나야 강변 살자",
+      "theme_ko": "평화·강변·동심의 소망",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "a child's wish to live by the river, glittering golden sand in the yard, the song of reed leaves by the back door, gentle idyllic peace",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=12198105&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "yiyuksa-cheongpodo",
+      "title": "청포도",
+      "author": "이육사",
+      "era": "근대 1939",
+      "form": "근대시",
+      "text": "내 고장 칠월은 / 청포도가 익어 가는 시절 / 이 마을 전설이 주저리주저리 열리고 / 먼 데 하늘이 꿈꾸며 알알이 들어와 박혀 / 하늘 밑 푸른 바다가 가슴을 열고 / 흰 돛 단 배가 곱게 밀려서 오면 / 내가 바라는 손님은 고달픈 몸으로 / 청포(靑袍)를 입고 찾아온다고 했으니 / 내 그를 맞아 이 포도를 따 먹으면 / 두 손은 함뿍 적셔도 좋으련 / 아이야 우리 식탁엔 은쟁반에 / 하이얀 모시 수건을 마련해 두렴",
+      "theme_ko": "고향 칠월·청포도·기다림·풍요와 희망",
+      "region_keys": [
+        "yeongnam"
+      ],
+      "place_types": [],
+      "imagery_en": "a hometown July when green grapes ripen, village legends clustering on the vine, a blue sea opening its breast, a white-sailed boat drawing near, awaiting a weary guest in blue robes, abundance and quiet hope",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9001047&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "yundongju-seosi",
+      "title": "서시",
+      "author": "윤동주",
+      "era": "근대 1941",
+      "form": "근대시",
+      "text": "죽는 날까지 하늘을 우러러 / 한 점 부끄럼이 없기를, / 잎새에 이는 바람에도 / 나는 괴로워했다. / 별을 노래하는 마음으로 / 모든 죽어 가는 것을 사랑해야지 / 그리고 나한테 주어진 길을 / 걸어가야겠다. / 오늘 밤에도 별이 바람에 스치운다.",
+      "theme_ko": "자기 성찰·부끄럼 없는 삶·별",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "looking up to the sky until the day of death, wishing for not a speck of shame, anguish even at wind stirring the leaves, loving all dying things, walking one's given path, a star brushed by the wind at night, pure conscience",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9000779&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimyeongnang-doldam",
+      "title": "돌담에 속삭이는 햇발",
+      "author": "김영랑",
+      "era": "근대 1930",
+      "form": "근대시",
+      "text": "돌담에 속삭이는 햇발같이 / 풀 아래 웃음 짓는 샘물같이 / 내 마음 고요히 고운 봄 길 위에 / 오늘 하루 하늘을 우러르고 싶다 / 새악시 볼에 떠 오는 부끄럼같이 / 시의 가슴에 살포시 젖는 물결같이 / 보드레한 에메랄드 얇게 흐르는 / 실비단 하늘을 바라보고 싶다",
+      "theme_ko": "봄·맑은 서정·하늘을 우러름",
+      "region_keys": [
+        "honam"
+      ],
+      "place_types": [],
+      "imagery_en": "sunbeams whispering on a stone wall, a spring smiling under the grass, a quiet lovely spring path, a maiden's rising blush, ripples gently soaking a poet's heart, a soft thin emerald silk sky, serene lyrical yearning",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9000347&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "hanyongun-nimui-chimmuk",
+      "title": "님의 침묵",
+      "author": "한용운",
+      "era": "근대 1926",
+      "form": "근대시",
+      "text": "님은 갔습니다. 아아, 사랑하는 나의 님은 갔습니다. / 푸른 산빛을 깨치고 단풍나무 숲을 향하여 난 작은 길을 걸어서, 차마 떨치고 갔습니다. / 황금의 꽃같이 굳고 빛나던 옛 맹세는 차디찬 티끌이 되어서 한숨의 미풍에 날아갔습니다. / 날카로운 첫 키스의 추억은 나의 운명의 지침을 돌려 놓고, 뒷걸음쳐서 사라졌습니다. / 나는 향기로운 님의 말소리에 귀먹고, 꽃다운 님의 얼굴에 눈멀었습니다. / 사랑도 사람의 일이라, 만날 때에 미리 떠날 것을 염려하고 경계하지 아니한 것은 아니지만, 이별은 뜻밖의 일이 되고, 놀란 가슴은 새로운 슬픔에 터집니다. / 그러나 이별을 쓸데없는 눈물의 원천을 만들고 마는 것은 스스로 사랑을 깨치는 것인 줄 아는 까닭에, 걷잡을 수 없는 슬픔의 힘을 옮겨서 새 희망의 정수박이에 들어부었습니다. / 우리는 만날 때에 떠날 것을 염려하는 것과 같이, 떠날 때에 다시 만날 것을 믿습니다. / 아아, 님은 갔지마는 나는 님을 보내지 아니하였습니다. / 제 곡조를 못 이기는 사랑의 노래는 님의 침묵을 휩싸고 돕니다.",
+      "theme_ko": "이별·역설적 희망·다시 만남의 믿음",
+      "region_keys": [
+        "sudo_chung"
+      ],
+      "place_types": [],
+      "imagery_en": "the beloved has gone, a bright old vow turned to cold dust on a sighing breeze, the memory of a first kiss receding, deaf to the beloved's voice and blind to their face, grief transmuted into new hope, faith in reunion, a love-song circling the beloved's silence",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9001830&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "jeongjiyong-hosu",
+      "title": "호수",
+      "author": "정지용",
+      "era": "근대 1930",
+      "form": "근대시",
+      "text": "얼굴 하나야 / 손바닥 둘로 / 폭 가리지만, / 보고 싶은 마음 / 호수만 하니 / 눈 감을밖에",
+      "theme_ko": "그리움·호수만 한 마음",
+      "region_keys": [
+        "sudo_chung"
+      ],
+      "place_types": [],
+      "imagery_en": "a single face easily hidden behind two cupped palms, yet a longing as wide as a lake, leaving nothing but to close one's eyes, quiet overwhelming yearning",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9029792&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimsowol-ganeungil",
+      "title": "가는 길",
+      "author": "김소월",
+      "era": "근대 1923",
+      "form": "근대시",
+      "text": "그립다 / 말을 할까 / 하니 그리워 / 그냥 갈까 / 그래도 / 다시 더 한 번…… / 저 산에도 까마귀, 들에 까마귀 / 서산에는 해 진다고 / 지저귑니다. / 앞 강물 뒷 강물 / 흐르는 물은 / 어서 따라오라고 따라가자고 / 흘러도 연달아 흐릅디다려.",
+      "theme_ko": "그리움·망설임·흐르는 강물",
+      "region_keys": [],
+      "place_types": [],
+      "imagery_en": "hesitating whether to speak one's longing, crows in mountain and field calling that the sun sets in the west, river waters flowing on and on urging one to follow, lingering reluctant love",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=12198105&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "yisanghwa-ppaeatgin",
+      "title": "빼앗긴 들에도 봄은 오는가",
+      "author": "이상화",
+      "era": "근대 1926",
+      "form": "근대시",
+      "text": "지금은 남의 땅 ― 빼앗긴 들에도 봄은 오는가? / 나는 온몸에 햇살을 받고 / 푸른 하늘 푸른 들이 맞붙은 곳으로 / 가르마 같은 논길을 따라 꿈속을 가듯 걸어만 간다. / 입술을 다문 하늘아 들아 / 내 맘에는 내 혼자 온 것 같지를 않구나 / 네가 끌었느냐 누가 부르더냐 답답워라 말을 해 다오. / 바람은 내 귀에 속삭이며 / 한 자국도 섰지 마라 옷자락을 흔들고 / 종다리는 울타리 너머 아씨같이 구름 뒤에서 반갑다 웃네. / 고맙게 잘 자란 보리밭아 / 간밤 자정이 넘어 내리던 고운 비로 / 너는 삼단 같은 머리를 감았구나 내 머리조차 가뿐하다. / 혼자라도 가쁘게나 가자 / 마른 논을 안고 도는 착한 도랑이 / 젖먹이 달래는 노래를 하고 제 혼자 어깨춤만 추고 가네. / 나비 제비야 깝치지 마라 / 맨드라미 들마꽃에도 인사를 해야지 / 아주까리 기름을 바른 이가 지심 매던 그 들이라 다 보고 싶다. / 내 손에 호미를 쥐어 다오 / 살진 젖가슴과 같은 부드러운 이 흙을 / 발목이 시리도록 밟아도 보고 좋은 땀조차 흘리고 싶다. / 강가에 나온 아이와 같이 / 짬도 모르고 끝도 없이 닫는 내 혼아 / 무엇을 찾느냐 어디로 가느냐 우스웁다 답을 하려무나. / 나는 온몸에 풋내를 띠고 / 푸른 웃음 푸른 설움이 어우러진 사이로 / 다리를 절며 하루를 걷는다 아마도 봄 신령이 지폈나 보다. / 그러나 지금은 ― 들을 빼앗겨 봄조차 빼앗기겠네.",
+      "theme_ko": "국토 상실의 비애·봄·저항",
+      "region_keys": [
+        "yeongnam"
+      ],
+      "place_types": [],
+      "imagery_en": "walking as if in a dream along a parted-hair path where blue sky meets green field, a stolen land where spring still comes, larks laughing behind clouds, barley washed by night rain, longing to grip a hoe and tread the soft earth, green laughter and green sorrow, the dread that even spring will be taken away",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9001014&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
+    },
+    {
+      "id": "kimyeongnang-moran",
+      "title": "모란이 피기까지는",
+      "author": "김영랑",
+      "era": "근대 1934",
+      "form": "근대시",
+      "text": "모란이 피기까지는 / 나는 아직 나의 봄을 기다리고 있을 테요 / 모란이 뚝뚝 떨어져 버린 날 / 나는 비로소 봄을 여읜 설움에 잠길 테요 / 오월 어느 날 그 하루 무덥던 날 / 떨어져 누운 꽃잎마저 시들어 버리고는 / 천지에 모란은 자취도 없어지고 / 뻗쳐오르던 내 보람 서운케 무너졌느니 / 모란이 지고 말면 그뿐 내 한 해는 다 가고 말아 / 삼백예순 날 하냥 섭섭해 우옵네다 / 모란이 피기까지는 / 나는 아직 기다리고 있을 테요 찬란한 슬픔의 봄을",
+      "theme_ko": "기다림·모란·찬란한 슬픔의 봄",
+      "region_keys": [
+        "honam"
+      ],
+      "place_types": [],
+      "imagery_en": "waiting for the peony to bloom as one's own spring, the grief of a spring lost when petals fall, a sweltering day in May, the flower vanishing without a trace, soaring hope quietly crumbling, yet still awaiting the radiant sorrow of spring",
+      "source": "공유마당 (한국저작권위원회) — 어문 만료저작물",
+      "source_url": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=9000350&menuNo=200019",
+      "license": "Public Domain (저작권 만료)"
     }
   ]
 }
