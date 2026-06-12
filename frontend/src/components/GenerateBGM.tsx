@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchGenerate, fetchPoems } from "../api";
-import type { BgmLicense, Poem } from "../api";
+import type { BgmLicense, GenerateTarget, Poem } from "../api";
 
 interface Props {
-  placeId: string;
+  placeId?: string;
+  region?: string;       // 소리 지도 권역 key — 권역 정보(+사용자 프롬프트 길이 가중)로 생성
+  regionLabel?: string;  // 권역 표기명 (안내 문구용)
 }
 
 // 진행 단계: 분위기 입력 → (보내기) → 시 추천·선택.
 type Step = "input" | "choose";
 
-export default function GenerateBGM({ placeId }: Props) {
+export default function GenerateBGM({ placeId, region, regionLabel }: Props) {
+  // API 호출 대상 — 실제 장소 또는 소리 지도 권역.
+  const target: GenerateTarget = placeId ? { placeId } : { region };
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [generated, setGenerated] = useState(true);
@@ -32,7 +36,7 @@ export default function GenerateBGM({ placeId }: Props) {
   const MAX_PROMPT = 200;
   const busy = status === "loading";
 
-  // 장소가 바뀌면 입력 단계로 초기화(추천은 사용자가 '보내기'를 눌렀을 때 계산).
+  // 장소(또는 권역)가 바뀌면 입력 단계로 초기화(추천은 사용자가 '보내기'를 눌렀을 때 계산).
   useEffect(() => {
     setStatus("idle");
     setAudioUrl(null);
@@ -44,14 +48,14 @@ export default function GenerateBGM({ placeId }: Props) {
     setRankedBy(null);
     setSelectedId(null);
     setExpandedId(null);
-  }, [placeId]);
+  }, [placeId, region]);
 
   // 보내기: 입력한 분위기로 어울리는 고전 시를 추천받고 선택 단계로 넘어간다.
   const handleSend = async () => {
     if (busy || poemsLoading) return;
     setPoemsLoading(true);
     try {
-      const res = await fetchPoems(placeId, prompt);
+      const res = await fetchPoems(target, prompt);
       setPoems(res.poems);
       setRecommendedId(res.recommended_id);
       setRankedBy(prompt.trim() || null);
@@ -78,7 +82,7 @@ export default function GenerateBGM({ placeId }: Props) {
 
     setStatus("loading");
     try {
-      const { audio_url, generated: gen, fallback_title, license: lic, poem: pm } = await fetchGenerate(placeId, {
+      const { audio_url, generated: gen, fallback_title, license: lic, poem: pm } = await fetchGenerate(target, {
         prompt,
         poemId: usePoem ? selectedId : null,
         usePoem,
@@ -120,7 +124,9 @@ export default function GenerateBGM({ placeId }: Props) {
   return (
     <div className="card border-dashed border-gold/30 bg-paper/40">
       <div>
-        <div className="font-serif font-semibold text-base">맞춤 BGM 생성</div>
+        <div className="font-serif font-semibold text-base">
+          {region ? `${regionLabel ?? "이 권역"}의 소리로 맞춤 BGM 생성` : "맞춤 BGM 생성"}
+        </div>
         <div className="text-xs text-stone-500 mt-0.5">
           원하는 분위기를 적어 보내면, 어울리는 고전 시를 추천해 드려요.
         </div>
@@ -138,7 +144,12 @@ export default function GenerateBGM({ placeId }: Props) {
             className="w-full text-xs rounded-lg border border-stone-200 bg-white px-2.5 py-1.5
                        placeholder:text-stone-400 focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none resize-none transition-colors"
           />
-          <div className="flex justify-end text-[10px] text-stone-400 mt-0.5">
+          <div className="flex justify-between text-[10px] text-stone-400 mt-0.5">
+            <span>
+              {region
+                ? "짧게 쓰면 권역의 소리 색이, 길고 자세할수록 내 묘사가 곡을 주도해요."
+                : ""}
+            </span>
             <span>{prompt.length}/{MAX_PROMPT}</span>
           </div>
           <button
@@ -239,7 +250,7 @@ export default function GenerateBGM({ placeId }: Props) {
             </button>
           </div>
           <p className="mt-1.5 text-[10px] text-stone-400">
-            ‘네’를 고르면 선택한 시의 정취에 내가 쓴 분위기가 더해지고, ‘아니요’는 입력한 분위기(+장소 정보)로만 생성합니다.
+            ‘네’를 고르면 선택한 시의 정취에 내가 쓴 분위기가 더해지고, ‘아니요’는 입력한 분위기(+{region ? "권역" : "장소"} 정보)로만 생성합니다.
           </p>
         </div>
       )}

@@ -72,6 +72,8 @@ TOP_N_TRACKS = 5
 # 전통 음원이 지역·유형 점수로 독점하는 것을 막고 크리에이터용 BGM 도 함께 노출.
 BGM_GENRE = "국악 BGM"
 BGM_RESERVED_SLOTS = 2
+# 권역 클릭 매칭 가중 (지역·유형·의미·태그) — /api/match 권역 경로와 /api/generate 권역 경로 공용.
+REGION_MATCH_WEIGHTS = (0.35, 0.0, 0.45, 0.2)
 
 app = FastAPI(title="GugakPlace API", version="0.1.0", lifespan=lifespan)
 
@@ -100,8 +102,10 @@ class MatchRequest(BaseModel):
 
 
 class GenerateRequest(BaseModel):
-    place_id: str
-    prompt: str | None = None  # 사용자가 직접 입력하는 BGM 묘사(선택). 장소·매칭곡 정보와 합쳐짐.
+    # place_id(실제 장소) / region(소리 지도 권역 key) 중 하나.
+    place_id: str | None = None
+    region: str | None = None
+    prompt: str | None = None  # 사용자가 직접 입력하는 BGM 묘사(선택). 장소(또는 권역)·매칭곡 정보와 합쳐짐.
     poem_id: str | None = None  # 사용자가 고른 고전 시 id. None=추천 시 사용(use_poem=True일 때).
     use_poem: bool = True       # False=시 없이 프롬프트(+장소)만으로 생성.
 
@@ -307,7 +311,7 @@ def post_match(body: MatchRequest):
     elif is_query:
         ranked = match(place, _tracks, weights=(0.0, 0.0, 0.8, 0.2))
     elif is_region:
-        ranked = match(place, _tracks, weights=(0.35, 0.0, 0.45, 0.2))
+        ranked = match(place, _tracks, weights=REGION_MATCH_WEIGHTS)
     else:
         ranked = match(place, _tracks)
 
@@ -385,15 +389,29 @@ def _poem_place_affinity(poem: dict[str, Any], region_key: str | None) -> float:
     return 0.0
 
 
+def _get_region_profile(region: str) -> dict[str, Any]:
+    """권역 key → 프로필. 없으면 404 (BGM 생성·시 추천 권역 경로 공용)."""
+    profile = get_profile(region.strip())
+    if profile is None:
+        raise HTTPException(status_code=404, detail=f"권역을 찾을 수 없습니다: {region}")
+    return profile
+
+
 @app.get("/api/poems")
-def get_place_poems(place_id: str, q: str | None = None):
-    """장소에 어울리는 시 후보 + 추천 시 id. 사용자가 직접 골라 BGM 을 생성할 수 있게 한다.
+def get_place_poems(place_id: str | None = None, q: str | None = None, region: str | None = None):
+    """장소(또는 소리 지도 권역)에 어울리는 시 후보 + 추천 시 id. 사용자가 직접 골라 BGM 을 생성할 수 있게 한다.
 
     q(무드 프롬프트)가 충분하면 무드 의미를 크게 잡아 전체 시에서 추천하고(장소 권역을
     넘어선다), q 가 짧으면 장소 비중을 키워 권역 후보 안에서 고른다. q 가 없으면 장소·권역
     기반 결정론적 추천. poems[0] 이 추천 시. 의미 매칭은 HF 임베딩이 핵심.
     각 항목은 표시용 필드(원문 text 포함)라 이름 클릭 시 추가 요청 없이 본문을 펼친다."""
-    place = _get_place(place_id)
+    if region and region.strip():
+        # 합성 권역 place — _region_key_for_place 가 __region__<key> id 로 권역을 인식한다.
+        place = _build_region_place(_get_region_profile(region))
+    elif place_id:
+        place = _get_place(place_id)
+    else:
+        raise HTTPException(status_code=422, detail="place_id 또는 region 이 필요합니다.")
     query = (q or "").strip()
 
     if query:
@@ -432,9 +450,23 @@ def get_place_poems(place_id: str, q: str | None = None):
 
 @app.post("/api/generate")
 async def post_generate(body: GenerateRequest):
-    """장소에 맞는 BGM 생성 (보조 기능). 생성 불가 시 실제 재생 가능한 최적 매칭 음원으로 폴백."""
-    place = _get_place(body.place_id)
-    ranked = match(place, _tracks)
+    """장소(또는 소리 지도 권역)에 맞는 BGM 생성 (보조 기능). 생성 불가 시 실제 재생 가능한 최적 매칭 음원으로 폴백.
+
+    권역 경로: 권역 묘사와 사용자 프롬프트를 프롬프트 길이 기반 가중으로 섞는다
+    (generation.build_region_prompt — 길수록 사용자 묘사 주도, 짧을수록 권역 주도)."""
+    region_profile: dict[str, Any] | None = None
+    if body.region and body.region.strip():
+        region_profile = _get_region_profile(body.region)
+        place = _build_region_place(region_profile)
+        ranked = match(place, _tracks, weights=REGION_MATCH_WEIGHTS)
+        # 대표곡(악기·무드가 프롬프트에 들어감)은 권역/토리 형제 풀에서 고른다.
+        region_pool = [t for t in ranked if t.get("score_detail", {}).get("region", 0) > 0]
+        ranked = region_pool or ranked
+    elif body.place_id:
+        place = _get_place(body.place_id)
+        ranked = match(place, _tracks)
+    else:
+        raise HTTPException(status_code=422, detail="place_id 또는 region 이 필요합니다.")
     # 2차 가공(생성)은 is_derivative_allowed=True 음원만 참조 (AGENTS.md §5.5)
     derivable = [t for t in ranked if t.get("is_derivative_allowed", True)]
     # 폴백은 반드시 재생 가능한(다운로드된) 음원이어야 무음/깨짐이 없다 (AGENTS.md §2·§8)
@@ -449,7 +481,7 @@ async def post_generate(body: GenerateRequest):
         poem = None
     poem_payload = to_display(poem)
 
-    audio_url = await generate_bgm(place, top_track, body.prompt, poem=poem)
+    audio_url = await generate_bgm(place, top_track, body.prompt, poem=poem, region_profile=region_profile)
     if audio_url:
         # AI 생성물은 CC/공공누리가 아니라 ElevenLabs 약관 적용. 사용자는 출처표시 후
         # 개인적 사용만(상업 권리는 플랜 보유자에게 귀속) — 프론트에서 복사용 크레딧 제공.

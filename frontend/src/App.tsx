@@ -447,6 +447,16 @@ export default function App() {
               </div>
             )}
 
+            {/* 권역 모드: 추천과 전체 목록 사이 — 권역의 소리 색 + 내 프롬프트(길이 가중)로 AI BGM 생성 */}
+            {result.region_tracks && result.place.id.startsWith("__region__") && (
+              <div className="mb-8">
+                <GenerateBGM
+                  region={result.place.id.slice("__region__".length)}
+                  regionLabel={result.place.name}
+                />
+              </div>
+            )}
+
             {/* 매칭 헤더 + 필터 (권역: 전체 목록 / 그 외: 매칭 결과) */}
             <div className="mb-4 space-y-2">
               <div className="flex items-center justify-between">

@@ -19,6 +19,21 @@ const LICENSE_STYLE: Record<string, string> = {
   "CC BY-NC": "bg-orange-100 text-orange-700",
 };
 
+// 헤드라인 점수 표시 보정 (표시 전용 — 순위·score_detail·레이더는 원값 유지).
+// 원점수(가중합)는 태그 축이 실데이터에서 거의 0이고(전 쌍의 99.3%) 의미 유사도도
+// 좁은 띠(0.57~0.84)에 몰려, 실질 범위가 [0.35, 0.85]로 눌려 만점이 불가능하다.
+// 이 실질 범위를 [50, 99]로 펴서 "추천인데 37점"처럼 읽히는 왜곡을 막는다.
+const RAW_SCORE_FLOOR = 0.35; // 추천권 실질 하한 (전국 BGM: 지역 0.6×30% + 유형 0.5×25%)
+const RAW_SCORE_CEIL = 0.85;  // 실질 상한 (태그 축 미발화 시 도달 가능한 최대치)
+const DISPLAY_MIN = 50;
+const DISPLAY_MAX = 99;
+
+function displayScore(score: number): number {
+  const s = Math.min(RAW_SCORE_CEIL, Math.max(RAW_SCORE_FLOOR, score));
+  const ratio = (s - RAW_SCORE_FLOOR) / (RAW_SCORE_CEIL - RAW_SCORE_FLOOR);
+  return Math.round(DISPLAY_MIN + ratio * (DISPLAY_MAX - DISPLAY_MIN));
+}
+
 function fmtTime(t: number): string {
   if (!isFinite(t) || t < 0) return "0:00";
   const m = Math.floor(t / 60);
@@ -99,7 +114,7 @@ export default function TrackCard({ track, rank, isPlaying, onPlay, hideScore = 
         {/* 매칭 점수 */}
         {!hideScore && (
           <div className="shrink-0 text-right">
-            <div className="text-lg font-bold text-jade">{Math.round(track.score * 100)}</div>
+            <div className="text-lg font-bold text-jade">{displayScore(track.score)}</div>
             <div className="text-xs text-stone-400">점</div>
           </div>
         )}
